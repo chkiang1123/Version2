@@ -49,7 +49,8 @@
         <div id="btnModeDeduct" class="action-btn" onclick="setActionMode('DEDUCT')">➖ Redeem / Deduct</div>
     </div>
     
-    <form id="rewardForm" onsubmit="handleFormSubmit(event)">
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+    <form id="rewardForm" action="https://script.google.com/macros/s/AKfycbyEmsdGHvubOo7uf7H-Pmy7TJ19ym52VRFPY8r_DtLAjf_JeQBkbsoKvqSR0F4SGQNp/exec" method="POST" target="hidden_iframe" onsubmit="handleFormSubmit(event)">
         
         <input type="hidden" name="actionMode" id="actionMode" value="ADD">
 
@@ -182,6 +183,7 @@
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyEmsdGHvubOo7uf7H-Pmy7TJ19ym52VRFPY8r_DtLAjf_JeQBkbsoKvqSR0F4SGQNp/exec";
+    let isSubmitting = false;
 
     window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('passcode').value = '';
@@ -208,7 +210,6 @@
         "Wong Shing Fung": "860532", "Wong Suk Yin": "314976", "Yao Hing Man": "975204",
         "Yip Kin Man": "538169", "Yu Siu Ping": "284605"
     };
-
 const CLASS_STUDENTS = {
         "1A": [
             "1A01 CHAN SIN YING 陳倩凝", "1A02 CHAN SUM YIN 陳芯賢", "1A03 CHAN SZE LOK 陳詩駱", "1A04 CHAN TSE YU 陳沚如", "1A05 CHAN TSZ WING 陳紫穎",
@@ -529,6 +530,10 @@ const CLASS_STUDENTS = {
     }
 
     async function handleFormSubmit(event) {
+        if (isSubmitting) {
+            return true;
+        }
+
         event.preventDefault();
         hideBalanceError();
 
@@ -555,7 +560,6 @@ const CLASS_STUDENTS = {
         submitBtn.textContent = 'Processing...';
 
         try {
-            // Validate balance when in DEDUCT mode
             if (actionMode === 'DEDUCT') {
                 const targets = mode === 'class' ? 
                     [document.getElementById('rewardingClass').value] : 
@@ -567,9 +571,9 @@ const CLASS_STUDENTS = {
 
                 let insufficientList = [];
                 targets.forEach(target => {
-                    const currentBalance = result.balances[target] || 0;
+                    const currentBalance = (result.balances && result.balances[target] !== undefined) ? result.balances[target] : 0;
                     if (currentBalance < starsRequested) {
-                        insufficientList.push(`• <strong>${target}</strong>: ${currentBalance} star(s) remaining (needs ${starsRequested})`);
+                        insufficientList.push(`• <strong>${target}</strong>: ${currentBalance} star(s) remaining (requested ${starsRequested})`);
                     }
                 });
 
@@ -581,17 +585,16 @@ const CLASS_STUDENTS = {
                 }
             }
 
-            // Submit form payload via POST
-            const formData = new FormData(document.getElementById('rewardForm'));
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: formData
-            });
+            isSubmitting = true;
+            document.getElementById('rewardForm').submit();
 
-            alert('Submission successful!');
-            location.reload();
+            document.getElementById('hidden_iframe').onload = function() {
+                alert('Submission successful!');
+                location.reload();
+            };
+
         } catch (error) {
-            alert('An error occurred during submission: ' + error.message);
+            alert('An error occurred during balance verification: ' + error.message);
             submitBtn.disabled = false;
             submitBtn.textContent = actionMode === 'ADD' ? 'Submit Stars' : 'Deduct Stars';
         }
