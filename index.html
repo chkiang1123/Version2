@@ -34,20 +34,22 @@
         button[type="submit"].deduct-mode { background-color: #ef4444; }
         button[type="submit"].deduct-mode:hover { background-color: #dc2626; }
         button[type="submit"]:hover { background-color: #ca8a04; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        
         .error-msg { color: #dc2626; font-size: 12px; display: none; margin-top: 4px; font-weight: bold; }
+        .balance-error { background-color: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; border: 1px solid #f87171; margin-top: 15px; font-size: 13px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 <div class="form-container">
     <h2 id="formHeader">⭐ Star Reward System</h2>
 
-    <!-- Mode Switcher: Add vs Deduct -->
     <div class="action-mode-group">
         <div id="btnModeAdd" class="action-btn active-add" onclick="setActionMode('ADD')">➕ Add Stars</div>
         <div id="btnModeDeduct" class="action-btn" onclick="setActionMode('DEDUCT')">➖ Redeem / Deduct</div>
     </div>
     
-    <form id="rewardForm" action="https://script.google.com/macros/s/AKfycbyEmsdGHvubOo7uf7H-Pmy7TJ19ym52VRFPY8r_DtLAjf_JeQBkbsoKvqSR0F4SGQNp/exec" method="POST" onsubmit="return validateForm()">
+    <form id="rewardForm" onsubmit="handleFormSubmit(event)">
         
         <input type="hidden" name="actionMode" id="actionMode" value="ADD">
 
@@ -172,12 +174,15 @@
         <label for="reason">Reason / Note</label>
         <textarea name="reason" id="reason" placeholder="Brief reason..." required></textarea>
 
+        <div id="balanceError" class="balance-error"></div>
+
         <button type="submit" id="submitBtn">Submit Stars</button>
     </form>
 </div>
 
 <script>
-    // Force clear passcode on page load
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyEmsdGHvubOo7uf7H-Pmy7TJ19ym52VRFPY8r_DtLAjf_JeQBkbsoKvqSR0F4SGQNp/exec";
+
     window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('passcode').value = '';
     });
@@ -424,6 +429,7 @@ const CLASS_STUDENTS = {
         const submitBtn = document.getElementById('submitBtn');
         const starsLabel = document.getElementById('starsLabel');
         const header = document.getElementById('formHeader');
+        hideBalanceError();
 
         if (mode === 'ADD') {
             btnAdd.className = 'action-btn active-add';
@@ -447,6 +453,7 @@ const CLASS_STUDENTS = {
         const classSec = document.getElementById('classStreamSection');
         const studentSec = document.getElementById('studentStreamSection');
         const reqClass = document.getElementById('rewardingClass');
+        hideBalanceError();
 
         if(mode === 'class') {
             document.getElementById('btnClass').classList.add('active');
@@ -502,30 +509,92 @@ const CLASS_STUDENTS = {
             container.appendChild(tag);
         });
         document.getElementById('studentNames').value = selectedStudents.join(',');
+        hideBalanceError();
     }
 
-    function validateForm() {
+    function resetPasscodeValidation() {
+        document.getElementById('passcodeError').style.display = 'none';
+    }
+
+    function hideBalanceError() {
+        const errDiv = document.getElementById('balanceError');
+        errDiv.style.display = 'none';
+        errDiv.innerHTML = '';
+    }
+
+    function showBalanceError(message) {
+        const errDiv = document.getElementById('balanceError');
+        errDiv.style.display = 'block';
+        errDiv.innerHTML = message;
+    }
+
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+        hideBalanceError();
+
         const teacher = document.getElementById('teacherName').value;
         const code = document.getElementById('passcode').value;
         const err = document.getElementById('passcodeError');
 
         if (TEACHER_PASSCODES[teacher] && TEACHER_PASSCODES[teacher] !== code) {
             err.style.display = 'block';
-            return false;
+            return;
         }
-        
+
         const mode = document.getElementById('rewardType').value;
         if (mode === 'student' && selectedStudents.length === 0) {
             alert('Please add at least one student before submitting.');
-            return false;
+            return;
         }
 
-        err.style.display = 'none';
-        return true;
-    }
+        const actionMode = document.getElementById('actionMode').value;
+        const starsRequested = parseInt(document.getElementById('stars').value, 10);
+        const submitBtn = document.getElementById('submitBtn');
 
-    function resetPasscodeValidation() {
-        document.getElementById('passcodeError').style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing...';
+
+        try {
+            // Validate balance when in DEDUCT mode
+            if (actionMode === 'DEDUCT') {
+                const targets = mode === 'class' ? 
+                    [document.getElementById('rewardingClass').value] : 
+                    selectedStudents;
+                
+                const queryUrl = `${SCRIPT_URL}?action=checkBalance&targetType=${mode}&targets=${encodeURIComponent(targets.join(','))}`;
+                const response = await fetch(queryUrl);
+                const result = await response.json();
+
+                let insufficientList = [];
+                targets.forEach(target => {
+                    const currentBalance = result.balances[target] || 0;
+                    if (currentBalance < starsRequested) {
+                        insufficientList.push(`• <strong>${target}</strong>: ${currentBalance} star(s) remaining (needs ${starsRequested})`);
+                    }
+                });
+
+                if (insufficientList.length > 0) {
+                    showBalanceError(`⚠️ Cannot proceed with redemption. Insufficient balance:<br>${insufficientList.join('<br>')}`);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Deduct Stars';
+                    return;
+                }
+            }
+
+            // Submit form payload via POST
+            const formData = new FormData(document.getElementById('rewardForm'));
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            });
+
+            alert('Submission successful!');
+            location.reload();
+        } catch (error) {
+            alert('An error occurred during submission: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = actionMode === 'ADD' ? 'Submit Stars' : 'Deduct Stars';
+        }
     }
 </script>
 </body>
