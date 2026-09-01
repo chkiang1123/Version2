@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Reward & Redemption System</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; margin: 0; }
+        .form-container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
+        h2 { text-align: center; color: #333; margin-bottom: 10px; margin-top: 0; }
+        
+        .action-mode-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .action-btn { flex: 1; padding: 12px; border: 2px solid #ccc; background: #f3f4f6; color: #555; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .action-btn.active-add { background: #eab308; color: white; border-color: #ca8a04; }
+        .action-btn.active-deduct { background: #ef4444; color: white; border-color: #dc2626; }
+
+        label { font-weight: bold; display: block; margin-top: 15px; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        textarea { resize: vertical; height: 70px; }
+        
+        .toggle-group { display: flex; gap: 10px; margin-top: 10px; }
+        .toggle-btn { flex: 1; padding: 10px; border: 2px solid #eab308; background: white; color: #333; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; }
+        .toggle-btn.active { background: #eab308; color: white; }
+
+        .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag { background: #fef08a; color: #854d0e; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .tag span { cursor: pointer; color: #dc2626; font-weight: bold; }
+
+        .add-row { display: flex; gap: 8px; margin-top: 5px; }
+        .add-btn { width: auto; background: #6366f1; padding: 10px 16px; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .add-btn:hover { background: #4f46e5; }
+
+        button[type="submit"] { width: 100%; background-color: #eab308; color: white; padding: 12px; border: none; border-radius: 6px; margin-top: 25px; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button[type="submit"].deduct-mode { background-color: #ef4444; }
+        button[type="submit"].deduct-mode:hover { background-color: #dc2626; }
+        button[type="submit"]:hover { background-color: #ca8a04; }
+        .error-msg { color: #dc2626; font-size: 12px; display: none; margin-top: 4px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2 id="formHeader">⭐ Star Reward System</h2>
+
+    <!-- Mode Switcher: Add vs Deduct -->
+    <div class="action-mode-group">
+        <div id="btnModeAdd" class="action-btn active-add" onclick="setActionMode('ADD')">➕ Add Stars</div>
+        <div id="btnModeDeduct" class="action-btn" onclick="setActionMode('DEDUCT')">➖ Redeem / Deduct</div>
+    </div>
+    
+    <form id="rewardForm" action="https://script.google.com/macros/s/AKfycbyEmsdGHvubOo7uf7H-Pmy7TJ19ym52VRFPY8r_DtLAjf_JeQBkbsoKvqSR0F4SGQNp/exec" method="POST" onsubmit="return validateForm()">
+        
+        <input type="hidden" name="actionMode" id="actionMode" value="ADD">
+
+        <label for="teacherName">Teacher's Name</label>
+        <select name="teacherName" id="teacherName" required onchange="resetPasscodeValidation()">
+            <option value="" disabled selected>Select your name</option>
+            <option value="Chan Hin Chiu">Chan Hin Chiu</option>
+            <option value="Chan Ka Ying, Anna">Chan Ka Ying, Anna</option>
+            <option value="Chan Kwok Keung">Chan Kwok Keung</option>
+            <option value="Chan Kwok Kwan">Chan Kwok Kwan</option>
+            <option value="Chan Lok Hin">Chan Lok Hin</option>
+            <option value="Chan Oi Yan, Irene">Chan Oi Yan, Irene</option>
+            <option value="Chan Shuk Man">Chan Shuk Man</option>
+            <option value="Chan Tsz Man">Chan Tsz Man</option>
+            <option value="Chan Wing Yin, Winnie">Chan Wing Yin, Winnie</option>
+            <option value="Chan Yau Sing">Chan Yau Sing</option>
+            <option value="Chan Ying Yuk">Chan Ying Yuk</option>
+            <option value="Chan Yuk Wah">Chan Yuk Wah</option>
+            <option value="Chan Yung Cheung">Chan Yung Cheung</option>
+            <option value="Cheung Chi Wai">Cheung Chi Wai</option>
+            <option value="Cheung Hoi Ning">Cheung Hoi Ning</option>
+            <option value="Cheung Ka Man">Cheung Ka Man</option>
+            <option value="Cheung Man Bun">Cheung Man Bun</option>
+            <option value="Chu Ki Cheong">Chu Ki Cheong</option>
+            <option value="Chui Fung Ming, Trinni">Chui Fung Ming, Trinni</option>
+            <option value="Chung Yuen Wah">Chung Yuen Wah</option>
+            <option value="Fong Pik Yuk">Fong Pik Yuk</option>
+            <option value="Heung Pak Yan">Heung Pak Yan</option>
+            <option value="Hung Chun Man">Hung Chun Man</option>
+            <option value="Hussain Nibla Shabir">Hussain Nibla Shabir</option>
+            <option value="Kiang Chi Hong">Kiang Chi Hong</option>
+            <option value="Kong Lai Han">Kong Lai Han</option>
+            <option value="Koo Yiu">Koo Yiu</option>
+            <option value="Kwok Pui Pui, Alison">Kwok Pui Pui, Alison</option>
+            <option value="Lam Ka Yan">Lam Ka Yan</option>
+            <option value="Lam Mei Po">Lam Mei Po</option>
+            <option value="Lam On Nei">Lam On Nei</option>
+            <option value="Lam Shuk Ying">Lam Shuk Ying</option>
+            <option value="Lam Wai Ling">Lam Wai Ling</option>
+            <option value="Lam Wai Man">Lam Wai Man</option>
+            <option value="Lau Nga Man">Lau Nga Man</option>
+            <option value="Lau Wing Kwan">Lau Wing Kwan</option>
+            <option value="Leung Pui Ling">Leung Pui Ling</option>
+            <option value="Li Chi Shing">Li Chi Shing</option>
+            <option value="Li Silin">Li Silin</option>
+            <option value="Lo Chiu Wing">Lo Chiu Wing</option>
+            <option value="Lui Yu Fong, Esther">Lui Yu Fong, Esther</option>
+            <option value="Mak Sin Yee">Mak Sin Yee</option>
+            <option value="Mak Shuk Man">Mak Shuk Man</option>
+            <option value="Mak Tsui Han">Mak Tsui Han</option>
+            <option value="Ng Oi Yan">Ng Oi Yan</option>
+            <option value="Sha Wai Pak">Sha Wai Pak</option>
+            <option value="Suen Chun Long">Suen Chun Long</option>
+            <option value="Sung Lai Ying">Sung Lai Ying</option>
+            <option value="Toa Wai Fook">Toa Wai Fook</option>
+            <option value="Tsao Man Fai">Tsao Man Fai</option>
+            <option value="Wong Kwok Tai">Wong Kwok Tai</option>
+            <option value="Wong Shing Fung">Wong Shing Fung</option>
+            <option value="Wong Suk Yin">Wong Suk Yin</option>
+            <option value="Yao Hing Man">Yao Hing Man</option>
+            <option value="Yip Kin Man">Yip Kin Man</option>
+            <option value="Yu Siu Ping">Yu Siu Ping</option>
+        </select>
+
+        <label for="passcode">6-Digit Secret Passcode</label>
+        <input type="password" id="passcode" name="passcode" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit code" required>
+        <div id="passcodeError" class="error-msg">Incorrect passcode for selected teacher!</div>
+
+        <label>Target Type</label>
+        <div class="toggle-group">
+            <div id="btnClass" class="toggle-btn active" onclick="setMode('class')">By Class</div>
+            <div id="btnStudent" class="toggle-btn" onclick="setMode('student')">By Student</div>
+        </div>
+        <input type="hidden" name="rewardType" id="rewardType" value="class">
+
+        <div id="classStreamSection">
+            <label for="rewardingClass">Select Class</label>
+            <select name="rewardingClass" id="rewardingClass">
+                <option value="" disabled selected>Select class (1A - 6D)</option>
+                <option value="1A">1A</option><option value="1B">1B</option><option value="1C">1C</option><option value="1D">1D</option>
+                <option value="2A">2A</option><option value="2B">2B</option><option value="2C">2C</option><option value="2D">2D</option>
+                <option value="3A">3A</option><option value="3B">3B</option><option value="3C">3C</option><option value="3D">3D</option>
+                <option value="4A">4A</option><option value="4B">4B</option><option value="4C">4C</option><option value="4D">4D</option>
+                <option value="5A">5A</option><option value="5B">5B</option><option value="5C">5C</option><option value="5D">5D</option>
+                <option value="6A">6A</option><option value="6B">6B</option><option value="6C">6C</option><option value="6D">6D</option>
+            </select>
+        </div>
+
+        <div id="studentStreamSection" style="display: none;">
+            <label for="studentClass">Select Class</label>
+            <select id="studentClass" name="studentClass" onchange="populateStudents()">
+                <option value="" disabled selected>Select class first</option>
+                <option value="1A">1A</option><option value="1B">1B</option><option value="1C">1C</option><option value="1D">1D</option>
+                <option value="2A">2A</option><option value="2B">2B</option><option value="2C">2C</option><option value="2D">2D</option>
+                <option value="3A">3A</option><option value="3B">3B</option><option value="3C">3C</option><option value="3D">3D</option>
+                <option value="4A">4A</option><option value="4B">4B</option><option value="4C">4C</option><option value="4D">4D</option>
+                <option value="5A">5A</option><option value="5B">5B</option><option value="5C">5C</option><option value="5D">5D</option>
+                <option value="6A">6A</option><option value="6B">6B</option><option value="6C">6C</option><option value="6D">6D</option>
+            </select>
+
+            <label for="studentSelect">Select Student</label>
+            <div class="add-row">
+                <select id="studentSelect">
+                    <option value="" disabled selected>Select a student</option>
+                </select>
+                <button type="button" class="add-btn" onclick="addStudentTag()">+ ADD</button>
+            </div>
+
+            <div id="selectedStudentsList" class="tag-container"></div>
+            <input type="hidden" name="studentNames" id="studentNames">
+        </div>
+
+        <label for="stars" id="starsLabel">Stars Awarded</label>
+        <select name="stars" id="stars" required>
+            <option value="1">⭐ 1 Star</option>
+            <option value="2">⭐⭐ 2 Stars</option>
+            <option value="3">⭐⭐⭐ 3 Stars</option>
+            <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+            <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+        </select>
+
+        <label for="reason">Reason / Note</label>
+        <textarea name="reason" id="reason" placeholder="Brief reason..." required></textarea>
+
+        <button type="submit" id="submitBtn">Submit Stars</button>
+    </form>
+</div>
+
+<script>
+    const TEACHER_PASSCODES = {
+        "Chan Hin Chiu": "849201", "Chan Ka Ying, Anna": "315682", "Chan Kwok Keung": "762049",
+        "Chan Kwok Kwan": "194830", "Chan Lok Hin": "520937", "Chan Oi Yan, Irene": "683154",
+        "Chan Shuk Man": "941720", "Chan Tsz Man": "237586", "Chan Wing Yin, Winnie": "604815",
+        "Chan Yau Sing": "852963", "Chan Ying Yuk": "149302", "Chan Yuk Wah": "736158",
+        "Chan Yung Cheung": "428901", "Cheung Chi Wai": "915234", "Cheung Hoi Ning": "380617",
+        "Cheung Ka Man": "674290", "Cheung Man Bun": "259148", "Chu Ki Cheong": "803716",
+        "Chui Fung Ming, Trinni": "516482", "Chung Yuen Wah": "932057", "Fong Pik Yuk": "471829",
+        "Heung Pak Yan": "128493", "Hung Chun Man": "659304", "Hussain Nibla Shabir": "304718",
+        "Kiang Chi Hong": "892156", "Kong Lai Han": "430872", "Koo Yiu": "715943",
+        "Kwok Pui Pui, Alison": "268301", "Lam Ka Yan": "594187", "Lam Mei Po": "931640",
+        "Lam On Nei": "172594", "Lam Shuk Ying": "806239", "Lam Wai Ling": "349015",
+        "Lam Wai Man": "685721", "Lau Nga Man": "210493", "Lau Wing Kwan": "754820",
+        "Leung Pui Ling": "493106", "Li Chi Shing": "826539", "Li Silin": "139704",
+        "Lo Chiu Wing": "648215", "Lui Yu Fong, Esther": "205938", "Mak Sin Yee": "781409",
+        "Mak Shuk Man": "369251", "Mak Tsui Han": "924810", "Ng Oi Yan": "510374",
+        "Sha Wai Pak": "837192", "Suen Chun Long": "246915", "Sung Lai Ying": "691483",
+        "Toa Wai Fook": "158027", "Tsao Man Fai": "703849", "Wong Kwok Tai": "429163",
+        "Wong Shing Fung": "860532", "Wong Suk Yin": "314976", "Yao Hing Man": "975204",
+        "Yip Kin Man": "538169", "Yu Siu Ping": "284605"
+    };
+
+    // Populated student database mapped to class names (Replace/add your full list here)
+const CLASS_STUDENTS = {
+        "1A": [
+            "1A01 CHAN SIN YING 陳倩凝", "1A02 CHAN SUM YIN 陳芯賢", "1A03 CHAN SZE LOK 陳詩駱", "1A04 CHAN TSE YU 陳沚如", "1A05 CHAN TSZ WING 陳紫穎",
+            "1A06 CHIU TSZ YUE 趙紫妤", "1A07 IP NGA CHING 葉雅澄", "1A08 LAI CHUNG YAN 賴頌恩", "1A09 LAM HEI TUNG CALEY 林桸橦", "1A10 LAW PO HEI 羅寶曦",
+            "1A11 LI TSZ YUE 李籽予", "1A12 NG SZE TING 吳施婷", "1A13 TANG YEE HEI HANNAH 鄧薾晞", "1A14 WONG CHING KIU 黃靖蕎", "1A15 WONG SUM YU YUNA 黃心瑜",
+            "1A16 YAM CHING 任晴", "1A17 YEUNG TSZ CHING 楊芷晴", "1A18 AU YEUNG NGAI NGAI 歐陽巍巍", "1A19 CHAN PAAK KIU 陳珀喬", "1A20 CHUNG KA TUNG 鍾家棟",
+            "1A21 FUNG YU KI 馮宇麒", "1A22 GURUNG UDHANT 余文達", "1A23 IP YIN KWAN 葉彥均", "1A24 LAW YUNG HO 羅榕灝", "1A25 LEE HO YEUNG 李灝揚",
+            "1A26 NG HO CHUN 吳澔臻", "1A27 SIN YEE HANG 冼以恒", "1A28 TANG NING NGAI 鄧甯毅", "1A29 TANG SZE POK 鄧思博", "1A30 TSO TSZ MING 曹子銘",
+            "1A31 WANG CHEUK YU 王琸宇", "1A32 YIM WAI KIU 嚴韋翹"
+        ],
+        "1B": [
+            "1B01 AU YEUNG TSZ NAM 歐陽芷楠", "1B02 CHAI YEE TUNG 蔡依彤", "1B03 CHEN YAN 陳恩", "1B04 CHEUNG SHIN YIN BRITNEY 張善然", "1B05 LAM LONG KIU 林朗翹",
+            "1B06 LEE SIU BING 李紹冰", "1B07 LEE WING YIN 李穎妍", "1B08 LI PUI YING 李沛鎣", "1B09 LUI MAN HUEN 呂敏暄", "1B10 MOK KASUMI 莫夏澄",
+            "1B11 NG CADENCE 吳海雪", "1B12 NG HOI TUNG 吳海僮", "1B13 POON WENDY 潘芷晴", "1B14 WONG TSZ CHING 黃梓晴", "1B15 WONG TSZ KIU 黃梓喬",
+            "1B16 YAU WING YAU 邱詠悠", "1B17 YIN HEI WAI 殷希蕙", "1B18 ZHOU JIAJIA 周家嘉", "1B19 CHAN WING LUN 陳詠璘", "1B20 CHENG YU CHEUNG 鄭宇翔",
+            "1B21 HUANG YI JE 黃以喆", "1B22 HUI KWAN LONG 許君朗", "1B23 KWOK YIK HANG KASPAR 郭奕亨", "1B24 LAM YIK HEI 林翊曦", "1B25 LAW HO FUNG 羅灝鋒",
+            "1B26 LEE CHUNG NAM 李重男", "1B27 LEE LUNG WO 李龍和", "1B28 LIN PAK WAI 連柏維", "1B29 TANG YUXUAN 唐宇軒", "1B30 WONG CHUN YIP 黃振業",
+            "1B31 YE YANGBIN 葉楊濱", "1B32 YIP SHUN KI 葉信祈"
+        ],
+        "1C": [
+            "1C01 CHAN SUM YAU 陳琛柔", "1C02 CHAN WING MAN 陳穎玟", "1C03 CHEONG YAN NOK 昌恩諾", "1C04 CHOI HO KI 蔡可琪", "1C05 CHOW TSZ CHING ZOE 周子晴",
+            "1C06 CHOW TUNG 周童", "1C07 KAY SUM YU 紀沁雨", "1C08 KO WAI YIN 高鏏妍", "1C09 KWAN TIN LAN 關天嵐", "1C10 KWOK HEI LAM 郭希琳",
+            "1C11 LAM HEI WING 林曦穎", "1C12 LAN KA ON 藍迦安", "1C13 LAU SUM YU 劉芯語", "1C14 LEE MAN YI 李萬宜", "1C15 LIU HOI LAM 廖凱琳",
+            "1C16 SUEN HOI CHING 孫塏晴", "1C17 TANG TING SUM 鄧婷心", "1C18 TSANG HOI YIN 曾凱妍", "1C19 WONG IEOK CHENG HAILEY 黃若晴", "1C20 YEUNG TSZ YING 楊梓縈",
+            "1C21 CHANG CHIT LONG 張哲朗", "1C22 CHENG YAT LONG ISSAC 鄭逸朗", "1C23 HO TAT YEUNG 何達揚", "1C24 LAI LOK YIN 黎珞然", "1C25 LEUNG HO FUNG 梁昊峯",
+            "1C26 LEUNG HO LAM 梁皓霖", "1C27 LIN PAK HEI 連柏郗", "1C28 MAU WAI SHUN 繆偉迅", "1C29 TAM LONG TING 譚朗霆", "1C30 TO CHEUK KIN 陶卓鍵",
+            "1C31 WONG RANG 王壤", "1C32 YING YAU KA 邢祐嘉", "1C33 YIU WING YAN 姚榮恩", "1C34 ZHENG JIN FENG 鄭錦峰"
+        ],
+        "1D": [
+            "1D01 CHAN MAN HEI HEIDA 陳汶希", "1D02 CHAU FUK WING 鄒福詠", "1D03 CHENG YAN YU 鄭恩瑜", "1D04 CHEUNG FARRAH HEI MAN 張琋雯", "1D05 CHOI YEE MAN 蔡依雯",
+            "1D06 CHU KA PO 朱加寶", "1D07 HO NGA YAU 賀雅悠", "1D08 HUNG JACQUELINE JANE 洪韻詠", "1D09 KWOK CHUNG HUEN 郭頌萱", "1D10 KWOK SZE UE 郭詩妤",
+            "1D11 LAM YI CHING 林依澄", "1D12 LAW HAU TUNG 羅巧彤", "1D13 LEE LOK TUNG 李洛潼", "1D14 LI YIN HEI 李彦熹", "1D15 LIN KEXIN 林可心",
+            "1D16 LUI KACEY 雷茜棋", "1D17 MAK HO YEE 麥皓兒", "1D18 SIU HOI NEI KYLIE 蕭凱妮", "1D19 TANG WAI BING 鄧慧冰", "1D20 WONG TSZ CHING 黃紫晴",
+            "1D21 CHAN CHUN LAM AIDEN 陳俊霖", "1D22 CHAN KA YIU 陳嘉耀", "1D23 CHING TSZ LONG 程子朗", "1D24 CHOI CHI CHUNG CYRUS 蔡致沖", "1D25 CHOW PAK HEI 周柏希",
+            "1D26 CHU CHUN NOK 朱俊諾", "1D27 FOK TSZ YU 霍梓瑜", "1D28 FUNG NOK TO 馮諾陶", "1D29 HA KA WING 夏嘉榮", "1D30 LAM YIN NOK 林彥諾",
+            "1D31 MOK TSZ WO 莫子和", "1D32 TSANG CHO FUNG 曾楚丰", "1D33 WONG LONG WUN 黃朗桓", "1D34 WU CHUN HANG 胡雋亨"
+        ],
+        "2A": [
+            "2A01 CHAN KA HEI 陳嘉琋", "2A02 CHAN PO YAN 陳寶欣", "2A03 CHAN TSZ YING 陳紫瑩", "2A04 CHAU CHUNG YAN EMILY 周頌恩", "2A05 CHOW TSZ YU 周祉妤",
+            "2A06 CHU HOI CHING 朱凱晴", "2A07 CHUNG YUEN SING 鍾緣升", "2A08 LAM XING YUE 林星悦", "2A09 LEUNG YEE LAM 梁以琳", "2A10 MAN HOI CHING 文鎧澄",
+            "2A11 NG HEI YEE 吳僖頤", "2A12 NG PUI LAM 吳佩霖", "2A13 NG YI JING 吳怡靜", "2A14 TO YUET YIU 杜玥瑤", "2A15 TSE MIKI 謝美希",
+            "2A16 TSUI SHEE YING 徐抒瀅", "2A17 WONG HOI LAM 黃海琳", "2A18 WONG LOK YAU 黃樂柔", "2A19 WONG SUET YING 王雪瑩", "2A20 CHAN CHEUK LONG 陳卓朗",
+            "2A21 CHAN SHING CHIT 陳承哲", "2A22 CHENG CHUN 鄭進", "2A23 CHEUNG WING YUET 張榮悅", "2A24 CHUK AH KWAN 竺亞坤", "2A25 KONG CHUNG NAM 江訟男",
+            "2A26 KWOK WING HIM 郭永謙", "2A27 LEUNG HON TIN 梁瀚天", "2A28 LEUNG KA WING 梁嘉潁", "2A29 POON PAK FUNG 潘泊鋒", "2A30 TONG HOI CHEUNG 湯凱祥",
+            "2A31 TSE SZE HON CYRIL 謝思翰", "2A32 YE WING YAM 葉穎欽"
+        ],
+        "2B": [
+            "2B01 CHAN TSZ YU 陳梓瑜", "2B02 CHAN YU YIU 陳汝鎐", "2B03 CHAN YUK PUI 陳鈺佩", "2B04 CHIU TSZ KWAN 邱子珺", "2B05 CHU ON YI 朱安兒",
+            "2B06 CHU TSZ WING 朱芷詠", "2B07 GUO HAIYU 郭海鈺", "2B08 LAM TSZ YIU 林芷瑤", "2B09 LAM YAT HEI 林日晞", "2B10 LAU YIK YAN 劉奕欣",
+            "2B11 LIN YU QIAN 林羽芊", "2B12 MAK LING FUNG 麥甯豐", "2B13 POON TSOI YING 潘采凝", "2B14 SHIH YAT CHING 施逸晴", "2B15 SIU CHING MAN 蕭靜雯",
+            "2B16 WO HOI CHING 胡暟晴", "2B17 WONG TSZ CHING NATALIE 王梓澄", "2B18 YIP HOI YEE 葉鎧而", "2B19 YUEN YAT LING 袁一伶", "2B20 CHAN LOK SUM 陳諾琛",
+            "2B21 HO MOSES 何慕正", "2B22 KWONG HAU YIN 江孝賢", "2B23 LAM CHUNG NAM 林頌藍", "2B24 LAM FUNG 林豐", "2B25 LEUNG SZE LONG 梁思朗",
+            "2B26 LEUNG TSUN HIM 梁峻謙", "2B27 MAN KEI YIP 文基業", "2B28 SO JERON 蘇梓朗", "2B29 TSANG HARRIS 曾憬謙", "2B30 WONG KWAN HO JEFF 黃君昊",
+            "2B31 WONG OCEAN 黃傲舜", "2B32 YEUNG TSZ LOK 楊子樂"
+        ],
+        "2C": [
+            "2C01 FAN SUM LUI 樊心蕾", "2C02 GI SZE WING 紀思穎", "2C04 LAI MAN PING 賴文平", "2C05 LAI SIN NAM 黎倩楠", "2C06 LAI TSZ YU 黎梓瑜",
+            "2C07 LAU HOI SHAN 劉愷珊", "2C08 LAU SI TING 劉鍶庭", "2C09 LAW HEI YAN 羅晞昕", "2C10 LEUNG PUI KA 梁貝嘉", "2C11 LEUNG SIN KIU 梁善喬",
+            "2C12 LI SUM YAU 李心柔", "2C13 LI TSZ YUET 李紫釔", "2C14 LI WAI SZE 李蕙詩", "2C15 MAN HOI TAI 文凱蒂", "2C16 MOK HOI CHING 莫鎧澄",
+            "2C17 NG PUI KEI 吳佩錡", "2C18 NG WING KA KATE 吳詠迦", "2C19 TO TSZ YIN 杜芷嫣", "2C20 CHAN CHUN HEI 陳圳希", "2C21 CHAN LAI YIN 陳禮賢",
+            "2C22 CHAN LING WO 陳令和", "2C23 CHAN YIN CHI 陳言知", "2C24 KING HAU YIN 金孝賢", "2C25 KWOK RAY 郭祐維", "2C26 LI TSZ HIN 李子軒",
+            "2C27 LIU CHUN KIT 劉俊杰", "2C28 LIU XINGANG 劉馨港", "2C29 MAK HO SUM 麥皓森", "2C30 SOO CHUN YIN 蘇進研", "2C31 TANG HONG CHIT 鄧匡哲",
+            "2C32 TANG KING LAM 鄧敬霖"
+        ],
+        "2D": [
+            "2D01 CHAN LOK YAN 陳樂恩", "2D02 CHAN NGOU ZIT 陳傲哲", "2D03 CHAN SZE WING 陳詩穎", "2D04 CHAN TSZ CHING 陳梓晴", "2D05 CHENG HEI YIN 鄭曦妍",
+            "2D06 HO NOK SZE 何諾詩", "2D07 HON TSZ CHING 韓梓晴", "2D08 HUI YING 許瑩", "2D09 KWONG HEI NAM HANNAH 鄺晞嵐", "2D10 LAU SZE YU 劉偲羽",
+            "2D11 LEE SUM UE 李芯妤", "2D12 LO HO YING 盧可盈", "2D13 LUO ZHANGSHUO 羅張爍", "2D14 REITZEL QUINN CONNOR 韋睿知", "2D15 TANG HAI YUET 鄧琋玥",
+            "2D16 TSANG KOK YIN 曾珏言", "2D17 WONG KA YEE 黃嘉儀", "2D18 YAN SZE NGA 殷詩雅", "2D19 ZENG NICOLE 曾珮雅", "2D20 CEN SUEN TUNG 岑煊桐",
+            "2D21 CHAU CHING KI 周正祁", "2D22 CHEUNG KIN HEI 張鍵晞", "2D23 CHOI YIK TAT 蔡易達", "2D24 CHOW KWAN YIN 周鈞賢", "2D25 FUNG HO LONG 馮皓塱",
+            "2D26 LAW TSZ HO 羅子顥", "2D27 LEUNG CHUNG HIN 梁仲軒", "2D28 NG KWOK KEUNG 吳國強", "2D29 NGAI CHUN YU 魏俊羽", "2D30 PANG YUK TIN 彭煜天",
+            "2D31 TSANG CHUN YAT 曾進一", "2D32 ZAFAR ISAM 沙宜芯"
+        ],
+        "3A": [
+            "3A01 CHUNG MAN YAN 鍾汶恩", "3A02 FONG CHO YUET 方初悅", "3A03 HO YIN CHUN 何彥津", "3A04 LAI TSZ YIU 黎子瑤", "3A05 LAU WING LAM 劉穎霖",
+            "3A06 LAW YING HEI 羅盈熙", "3A07 LEUNG TSZ KIU 梁紫翹", "3A08 LO KALAEN HARMONY 羅芷薇", "3A09 LUK WING KWAN 陸穎君", "3A10 MA YUEN WAI 馬箢蔚",
+            "3A11 TSE HEI YEE 謝希儀", "3A12 WONG CHING 黃靖", "3A13 WONG HEI MAN 王希汶", "3A14 WONG SUM YI 黃心兒", "3A15 CHAN JAK YIN AIDEN 陳則言",
+            "3A16 CHAN PAK NGAI 陳栢毅", "3A17 CHAN YEUK FUNG 陳約夆", "3A18 CHIU TSZ SHUN 趙子醇", "3A19 CHUNG CHEUK YIN 鍾卓言", "3A20 FANG HIN CHUN 范顯臻",
+            "3A21 HO PAK LAM 何柏霖", "3A22 LAM NOK TING 林諾霆", "3A23 LAW DIK 羅迪", "3A24 NG PO YU 吳溥瑜", "3A25 NG SHEUNG HEI 吳尚熹",
+            "3A26 TAM LOK CHING 譚樂澄", "3A27 TANG CHEUK NAM 鄧綽楠", "3A28 TANG KAI LOK 鄧啟樂", "3A29 TSE TSZ KUI 謝梓鉅", "3A30 WONG KIT NAM KEITH 黃杰嵐",
+            "3A31 ZHAO WAI SHING 趙偉成"
+        ],
+        "3B": [
+            "3B01 CHAN KRISTY 陳靜彤", "3B02 CHEUNG YEE YIN 張貽然", "3B03 HO HO KEI 何可琦", "3B04 LAM CHING YU 林靖瑜", "3B05 LAM CHUNG CHING 林鍾靜",
+            "3B06 LAM YU YAN 林愈恩", "3B07 LEE I LAM 李苡琳", "3B08 LEE SUM YAU 李琛柔", "3B09 NG SZE WING 吳思穎", "3B10 TAI LOK KIU 戴珞蕎",
+            "3B11 TSOI HAU CHING 蔡巧晴", "3B12 WONG TSZ CHING 黃梓晴", "3B13 YIP SZE TUNG 葉思桐", "3B14 YU QUINN MORNE ARIA 尤格里安兒", "3B15 YUNG HIU WAI 翁曉蔚",
+            "3B16 CHAN CHUN SING 陳鎮星", "3B17 CHEUNG CHIN KWOK KINGSLEY 張展國", "3B18 CHEUNG TSZ HIM 張子謙", "3B19 CHEUNG WAI HIN 張瑋軒", "3B20 FUNG KING CHAK 馮景澤",
+            "3B21 HO MING HEI 何銘希", "3B22 HO TSZ LONG 何子朗", "3B23 IP HAU LAAM 葉考嵐", "3B24 MAK HO YIN 麥皓然", "3B25 MAN KING LONG 文敬朗",
+            "3B26 SHEK YAT SUM 石一森", "3B27 SIU HOI LUNG KYLE 蕭凱龍", "3B28 TANG CHING CHI 鄧清之", "3B29 WONG KA CHIU 黃嘉昭", "3B30 WONG KIN MAN 黃建文",
+            "3B31 YEUNG KING HO CLEATUS 楊經灝", "3B32 YIP WUN SHING 葉桓晟"
+        ],
+        "3C": [
+            "3C01 AU HO YEE 區可頤", "3C02 CHAN YU SZE 陳雨時", "3C03 CHEUNG MANSI 張曈", "3C04 CHEUNG TSZ YU 張芷瑜", "3C05 CHOW KA YAU 周珈滺",
+            "3C06 CHU CHI CHING 朱淽澄", "3C07 KAN YIP CHING ICY 簡葉晴", "3C08 KING WING CHI 金穎姿", "3C09 LAW HIU CHING 羅曉晴", "3C10 LI TSZ CHING 利芷晴",
+            "3C11 LI VIVIAN 李洺瑄", "3C12 LING TING KA MELISSA 凌廷嘉", "3C13 POON SUM YEE 潘杺沂", "3C14 SIU HOI CHING 蕭凱澄", "3C15 WONG WING YIN 黃詠妍",
+            "3C16 YUEN TSZ YIU 源芷瑤", "3C17 CHAN NGOU LING 陳傲嶺", "3C18 CHAN SUI TUNG 陳帥曈", "3C19 CHAN YAT LONG 陳溢朗", "3C20 CHEUNG YEE CHUN 張以駿",
+            "3C21 CHOW HIN TUNG CRUZ 周顯東", "3C22 FOK PAK YUK 霍栢彧", "3C23 FU LI HO 符理灝", "3C24 FUNG YUI YIN 馮睿賢", "3C25 KWOK CHUN HIN 郭進軒",
+            "3C26 KWONG YUI YEE 鄺睿懿", "3C27 LAM TING YAN 林庭殷", "3C28 LANIJAH MING CHUN 蔡旻真", "3C29 LEUNG LOK TANG 梁樂騰", "3C30 TONG KIN YUI 湯健睿",
+            "3C31 YEUNG HO MAN 楊皓文", "3C32 ZHANG SHING HIN 張誠軒"
+        ],
+        "3D": [
+            "3D01 CHAK YING LAM 翟映琳", "3D02 CHAN CHUNG MAN 陳頌汶", "3D03 CHAN TSZ IP 陳祉燁", "3D04 CHUNG HEI YI HAILEY 鍾希兒", "3D05 HO HEI MAN 何希敏",
+            "3D06 HUANG BIXUAN 黃碧萱", "3D07 LAI TING YAN 賴亭銦", "3D08 LAW SOFIA 羅上知", "3D09 LEE ARWEN 李加韻", "3D10 NG WAI TING 吳慧婷",
+            "3D11 TANG SHEUNG YUNG 鄧湘蓉", "3D12 TANG TSZ CHING 鄧梓晴", "3D13 TIN HEI YU 田郗如", "3D14 WU SUM KIU 胡心蕎", "3D16 ZHANG XINYI 張芯怡",
+            "3D17 CHAN CHEUK HIM 陳卓謙", "3D18 CHAN LOK MAN 陳樂文", "3D19 CHEN JIANXIN 陳健鑫", "3D20 CHEUNG SHUN HEI 張信晞", "3D21 HUI SHU WAI 許書瑋",
+            "3D22 KWOK TSZ NGO GIO 郭子翱", "3D23 LAM PING YIN 林平彥", "3D24 LAM YIK LONG 林奕朗", "3D25 LAU YU HIM 劉諭謙", "3D26 LAW CHI CHUN 羅梓駿",
+            "3D27 NG CHUNG HIM 吳頌謙", "3D28 NG YEE HIN HINSLEY 吳貽汧", "3D29 PANG WUI YIU 彭滙堯", "3D30 PUN TSZ LUNG 潘祉龍", "3D31 TANG CHING YIN 鄧政言",
+            "3D32 WONG KI CHUN 黃淇雋", "3D33 ZHAN WENLUO 詹汶洛"
+        ],
+        "4A": [
+            "4A01 CHAN JUN YI 陳津兒", "4A02 CHAU HIU YIN 周曉玹", "4A03 CHEUNG HO CHING 張可晴", "4A04 CHEUNG SHIN TUNG BLAIR 張善童", "4A05 CHEUNG WING TUNG 張穎彤",
+            "4A06 CHOY KA LEE 蔡嘉莉", "4A07 HO SZE WING 何思穎", "4A08 LAM YAN KEI 林欣錡", "4A09 LAM YU YIN 林雨嫣", "4A10 LEE SI NOK CHARLOTTE 李司諾",
+            "4A11 LEUNG CHEUK LAM 梁焯嵐", "4A12 LI YAN CHING 李昕澄", "4A13 LIN LIXIN 林麗欣", "4A14 LO OI KIU 羅皚翹", "4A15 TAM SZE KI 譚詩琪",
+            "4A16 WONG LOK 黃洛", "4A17 WU HIU TUNG KATIE 胡曉彤", "4A18 YIP SIN CHING 葉善晴", "4A19 ZENG HING YIU 曾馨瑶", "4A20 CHAN PAK HEI CHRIS 陳柏熹",
+            "4A21 CHAN YIN WANG 陳彥宏", "4A22 CHOW TSUN WANG 周峻弘", "4A23 HO CHUN YAT 何俊逸", "4A24 HO TIM LOK 何添樂", "4A25 HONG WANG HEI 康弘熹",
+            "4A26 KEI HO WANG 紀昊宏", "4A27 LAW KIT HEI 羅傑禧", "4A28 LEE HIN NAM 李顯男", "4A29 SIU YIP HUNG 蕭業洪", "4A30 SO TZE SUM 蘇梓森",
+            "4A31 TANG HO SUM 鄧皓心", "4A32 WANG CLEAR 王金港", "4A33 WU CHI YUEN 吳志炫", "4A34 YANG LI YAN 楊立言", "4A35 YUEN PAK SHING 阮栢誠"
+        ],
+        "4B": [
+            "4B01 CHAN MING WAI 陳明慧", "4B02 CHAN NOI YI 陳奈兒", "4B03 CHAN SZE UE 陳思妤", "4B04 CHENG YUEN CHING 鄭苑澄", "4B05 CHEUNG NGAI YING 張藝瀠",
+            "4B06 CHONG WING YEE 莊穎兒", "4B07 KONG SUET TING VIE 江雪霆", "4B08 LAM TSZ YAN 藍梓甄", "4B09 LAU SZE CHING AMARIS 劉詩晴", "4B10 PAU HOI TING 鮑凱婷",
+            "4B11 SIN I LOK 冼苡樂", "4B12 TANG HEI TO 鄧晞桃", "4B13 TANG I CHING 鄧苡晴", "4B14 TONG TIK KI 湯廸淇", "4B15 YE YU SHAN 葉雨珊",
+            "4B16 ZHU JUNRU ANNY 朱軍如", "4B17 CHENG CHUN HIN 鄭俊軒", "4B18 CHEUNG KING HUNG 張景雄", "4B19 CHONG HONG TO 莊康圖", "4B20 CHOW LOK TIN 周樂天",
+            "4B21 CHOW YUK CHIT 周煜喆", "4B22 FOK NGAI 霍毅", "4B23 FONG KIN ONE 方健一", "4B24 LO CHUN HO 羅俊皓", "4B25 LUO LEUNG CHING 羅良正",
+            "4B26 NG CHUN NOK DEREK 伍俊諾", "4B27 TAN JOY 譚業臻", "4B28 TSOI TING ON 蔡霆桉", "4B29 TSUI TSZ CHUNG 徐梓聰", "4B30 WAI HO CHING 韋昊澄",
+            "4B31 WONG CHI FAI BRANDON 黃智暉", "4B32 WONG TORRES CHEUK HEI 黃綽禧", "4B33 ZENG FOR YUEN 曾科源"
+        ],
+        "4C": [
+            "4C01 CHAN HOI TING 陳凱庭", "4C02 CHAU OI TING 鄒磑亭", "4C03 CHEN HAU NGA 陳巧雅", "4C04 CUI LOK YIN KITTY 崔樂言", "4C05 HE NGA LAM 何雅琳",
+            "4C06 HO KA MAN CARMAN 何家雯", "4C07 HUI KWAN YI 許筠沂", "4C08 LAU CHEUK SZE 劉卓思", "4C09 LI CHIN TUNG 李芊曈", "4C10 LUO SI HAN 羅思涵",
+            "4C11 MAN KIU YAN 文喬姻", "4C12 NG SZE NGA 吳詩雅", "4C13 WONG CHUNG SUM 黃頌芯", "4C14 WONG TSZ CHING 黃子晴", "4C15 YIM SZE YU 嚴絲雨",
+            "4C16 YIP PO HON 葉寶韓", "4C17 CHAU TSZ HIN 周子軒", "4C18 CHENG LAP KIU 鄭立翹", "4C19 CHEUNG KING YIU 張景堯", "4C20 CHOI CHI LAM 蔡知霖",
+            "4C21 LAM CHI LONG 林智朗", "4C22 LEUNG LOK TIN 梁樂天", "4C23 LOU TAK CHI 盧德治", "4C24 TSE TIN YIU STEFAN 謝天堯", "4C25 TSUI YI 徐懿",
+            "4C26 WONG KIN CHEUNG 王建翔", "4C27 WONG YIN HEI 黃彥希", "4C28 YE ENXIANG 叶恩祥"
+        ],
+        "4D": [
+            "4D01 CHAN SUM YUET 陳琛悅", "4D02 CHAN YAT TUNG 陳逸彤", "4D03 DING XIN YA 丁欣雅", "4D04 FONG YEE LAM 方依琳", "4D05 LEI HIU TUNG ZITA 李曉彤",
+            "4D06 LEUNG HOI MAN 梁海汶", "4D07 LIANG ZI HANG 梁紫含", "4D08 LO HING YI 羅馨怡", "4D09 LO WING SA 勞泳莎", "4D10 NG WING KIU 吳詠荍",
+            "4D11 TSUNG HONG KIU 曾康喬", "4D12 WONG CHING NAM 黃靖嵐", "4D13 WONG TIN OI AUDREY 黃天愛", "4D14 CHAN CHEUK HEI 陳卓希", "4D15 CHAN YU HEI 陳宇熙",
+            "4D16 CHEUNG KING HIN 張景軒", "4D17 FAN AYDEN ZHUO XI 樊卓熙", "4D18 LEE YIN CHIT 李賢哲", "4D19 MA CHEUK HIM 馬卓謙", "4D20 TONG YUI KI 湯睿祈",
+            "4D21 WO CHIT NING 胡哲寧", "4D22 WONG CHI WAH SAMUEL 黃子華", "4D23 WONG CHING FUNG 黃靖峰", "4D24 WONG LOK HANG 黃樂恆", "4D25 WONG YU HEI 王裕羲",
+            "4D26 YU AUSTIN 余卓帆", "4D27 ZHONG YU HIN 鍾宇軒"
+        ],
+        "5A": [
+            "5A01 CHAN HOI CHING PATRICIA 陳凱晴", "5A02 CHAN SUM YUI 陳心睿", "5A03 CHAN TSZ KEI 陳子崎", "5A04 CHAN YEE WAN YANNIS 陳漪勻", "5A05 CHENG TSZ YIU 鄭紫瑤",
+            "5A06 CHOW CHI YAN 周枳昕", "5A07 DENG MENGYUAN 鄧夢圓", "5A08 FAN KA YING 范珈瑩", "5A09 FUNG KA WING 馮家穎", "5A10 KWOK CHING TUNG 郭靖瞳",
+            "5A11 LEUNG HO LI ELISE 梁可莉", "5A12 LIANG KIT YING 梁潔盈", "5A13 LIU XIN YING 劉幸瑩", "5A14 SO KA YIN 蘇珈然", "5A15 SO TUNG YUET 蘇彤悅",
+            "5A16 WAN KA HEI 温珈羲", "5A17 WONG YING YUET 黃盈悅", "5A18 YIM KA CHING 嚴嘉晴", "5A19 ZHENG HAU YU 鄭巧渝", "5A20 CHEN ZIAN 陳子安",
+            "5A21 CHEUNG LON 張朗", "5A22 CHIU PAK HEI 趙柏羲", "5A23 LEE CHEVO LIAM 李子和", "5A24 LEUNG FOON 梁寬", "5A25 LIANG CHIU HO 梁釗豪",
+            "5A26 PANG HOI HIN 彭凱軒", "5A27 TANG CHI HUNG 鄧志鴻", "5A28 WONG HO LAM 王灝霖", "5A29 WONG TSZ KIT 黃祉傑", "5A30 XUE NUOLE 薛諾樂",
+            "5A31 YEUNG MAN WAI 楊文偉"
+        ],
+        "5B": [
+            "5B01 CHAN HOI TUNG 陳凱童", "5B02 CHAN YING SHUN 陳映淳", "5B03 CHEN JINGYING 陳景莹", "5B04 CHEN YOYO 陳嘉嬋", "5B05 CHEUNG NGAI MEI 張藝鶥",
+            "5B06 CHUI NGAI FEI 徐藝菲", "5B07 FUNG SZE WAI 馮思惠", "5B08 KUK MEI TING 谷美婷", "5B09 KWONG HAU YI 江巧怡", "5B10 LAM HUEN YAU 林瑄悠",
+            "5B11 LAU HO YI 劉皓兒", "5B12 LI SUM YAN 李心欣", "5B13 MAN TSOI YI 文采兒", "5B14 POK MAN TING 濮敏婷", "5B15 TSE WING YI 謝詠兒",
+            "5B16 WONG OI YING JADE 黃愛盈", "5B17 WU SHANSHAN 吳姍珊", "5B18 YAU KA YAN 丘家甄", "5B19 YEUNG WAI YIN 楊惠研", "5B20 CHEUNG HOK YU 張學儒",
+            "5B21 CHUNG KAM HIN 鍾錦軒", "5B22 HUNG KA LEUK 洪嘉略", "5B23 LAM TSUN HANG HENRY 林浚鏗", "5B24 LAW TSZ LONG 羅子朗", "5B25 LI HUNG CHI 李雄始",
+            "5B26 NG TSZ HIM 吳子謙", "5B27 OU YANG XUCHENG 歐陽旭成", "5B28 PAN YIN KWAN 潘彥均", "5B29 RONG KIN PAN 容健彬", "5B30 TAM DANIEL 譚俊希",
+            "5B31 WU RUI 吳瑞"
+        ],
+        "5C": [
+            "5C01 CHAN SUM YI 陳心怡", "5C02 FAN HIU TUNG 樊曉彤", "5C03 GUAN MANYU 管曼羽", "5C04 GUO PUI YAN 郭貝恩", "5C05 HUANG HUIXIN CINDY 黃惠馨",
+            "5C06 LAI SUM YUET 黎心悦", "5C07 LAI TSZ YIN 黎紫嫣", "5C08 LAU SIN YAN 劉倩欣", "5C09 LOONG WING TUNG 龍穎彤", "5C10 WONG WING SUM 黃穎芯",
+            "5C11 YIU LOK CHING 姚樂晴", "5C12 CHAN CHUN HEI 陳俊熙", "5C13 CHAN HIU MING 陳曉銘", "5C14 CHAN LUK HEI 陳祿晞", "5C15 CHEN NIANXUN 陳念勛",
+            "5C16 CHEUNG KIT YIU 張杰堯", "5C17 CHEUNG SHING KIT 張鋮杰", "5C18 HO HO SUM 何浩琛", "5C19 KOO TSZ HIN 顧梓騫", "5C20 LEUNG KA SHING 梁家鋮",
+            "5C21 MA LOK MAN 馬樂民", "5C22 NG PAK KWAN 吳柏君", "5C23 TANG WANG CHUN 鄧泓雋", "5C24 YAU WING LOK 邱永樂", "5C25 YE YAN HEI 葉恩希",
+            "5C26 ZHANG BAIHAO 張柏浩", "5C27 ZHANG TING KAI 張廷楷"
+        ],
+        "5D": [
+            "5D01 CHAU KA IU 鄒泇嬈", "5D02 CHAU TSZ WAN 鄒旨蘊", "5D03 HSUI WING KI 許穎淇", "5D04 HUEW PUI NAM 禤珮嵐", "5D05 HUI CHING 許晴",
+            "5D06 LAU YIN LING 劉彥伶", "5D07 MAN CHING NAM 文靜嵐", "5D08 NG CHING YAU 吳青悠", "5D09 TSOI YEE TUNG 蔡依桐", "5D10 WAH KA WING 華迦詠",
+            "5D11 WONG SIN YI 王善儀", "5D12 WONG TSZ YIN CAT 王子嫣", "5D13 XIONG QINGQIAN 熊慶茜", "5D14 YE HIU WAI 葉曉慧", "5D15 CHAN CHEUK LAM 陳卓霖",
+            "5D16 CHAN HIU FAI 陳曉煇", "5D17 CHAN KA CHUN 陳嘉俊", "5D18 CHAN KING YIN KINGSLEY 陳敬賢", "5D19 CHEN YIU KIN 陳堯堅", "5D20 CHENG ISAAC 鄭子頌",
+            "5D21 CHEUNG HIU KWAN 張曉軍", "5D22 HUNG HING HEY 孔慶熙", "5D23 KOON LOK HANG 官樂恆", "5D24 LAM WAI LOK 林湋洛", "5D25 LAU WING TO 劉穎濤",
+            "5D26 LEE TSZ HIN 李子軒", "5D27 LEUNG HOI TIK 梁凱廸", "5D28 MAN HO SUM 文皓心", "5D29 WANEM BIJAY 王太明", "5D30 WONG YIU HONG 王耀康",
+            "5D31 ZHOU CHAK HEI ETHAN 周澤曦"
+        ],
+        "6A": [
+            "6A01 CHENG HAU YEE 鄭巧兒", "6A02 CHENG KA YI 鄭家懿", "6A03 CHEUNG WAN HEI 張芸晞", "6A04 CHEUNG WUN YAN 張桓欣", "6A05 CHOI MAN SHAN 蔡旻姍",
+            "6A06 DU CLARE 杜春雨", "6A07 GUO FEIQING 郭菲晴", "6A08 KONG KA YAN 江嘉欣", "6A09 LAM LOK YIU 林洛瑤", "6A10 LAM SIN YEE 林善儀",
+            "6A11 LIN PUI SHAN 林沛珊", "6A12 NG MAN KI 吳曼錤", "6A13 SUEN CHING TUNG 孫靖桐", "6A14 TAM WING SZE 譚穎詩", "6A15 TANG CHUN SUM 鄧盡心",
+            "6A16 TSANG SUM YIN 曾心鈃", "6A17 WONG PO IN 黃寶妍", "6A18 WONG SHUK YIN 王淑賢", "6A19 YIP HOI YAN 葉凱欣", "6A20 ZHENG SIYAN 鄭思言",
+            "6A21 LAI PUN HIM 賴本謙", "6A22 LAW HO HIN 羅浩軒", "6A23 LEUNG CHING YIN 梁政彥", "6A25 WONG KAI LOK 黃啟樂"
+        ],
+        "6B": [
+            "6B01 CHAN HAU YU 陳巧瑜", "6B02 CHAN SUM YU ALGIE 陳杺榆", "6B03 CHIU WAI KI 趙韋淇", "6B04 HO PUI YEE 何沛頤", "6B05 HO SZE YUI 何思睿",
+            "6B06 HUI LOK LAM CYNTHIA 許樂琳", "6B07 LIN MAN YUNG 林漫蓉", "6B08 LIU HOI YING 廖凱楹", "6B09 MANG TSZ YING 孟芷瑩", "6B10 MOK HOI TIK 莫凱迪",
+            "6B11 NG YAN WAI 吳茵慧", "6B12 POON CHING PO 潘証寶", "6B13 TANG CHEUK YI 鄧卓兒", "6B14 TSANG HOI TUNG 曾凱彤", "6B15 VONG HO KIU 黃可喬",
+            "6B16 WEI YI LIN 魏怡琳", "6B17 WONG SIN TUNG 黃茜瞳", "6B18 WONG TSZ HUEN 黃子瑄", "6B19 XIE KA YEE 謝嘉儀", "6B20 YU KA YING 余加盈",
+            "6B21 CHAN KING HONG 陳景匡", "6B22 CHIU CHEUK LAM 趙卓藍", "6B23 CHUNG CHEUK KIT 鍾焯傑", "6B24 FUNG YAT HEI 馮逸希", "6B25 HUANG ZHE 黃哲",
+            "6B26 NG CHUN YU 吳俊儒", "6B27 YIU CHI HIM 姚沚謙"
+        ],
+        "6C": [
+            "6C01 CHING CHIN YI 程千懿", "6C02 CHU WAI CHING 朱葦晴", "6C03 CHUNG YU TUNG 鍾雨潼", "6C04 FUNG SI MING 馮思銘", "6C05 KWAN ELLIE 關詠姸",
+            "6C06 KWOK CHEUK TUNG 郭芍彤", "6C07 LAI CHEUK LAM 黎焯琳", "6C08 LAM TSZ KI 林子淇", "6C09 LEE YUI CHING 李睿婧", "6C10 LEUNG KWAN CHING 梁筠晴",
+            "6C11 NG TSZ KI 吳紫祈", "6C12 TAM HEI YIN 譚曦賢", "6C13 WONG CHU WUN 王姝媛", "6C14 WONG YAT CHING 黃溢晴", "6C15 CHAN CHEUK LAP 陳卓立",
+            "6C16 CHAN YIU CHUEN 陳耀全", "6C17 HE LAM TSANG 何林錚", "6C18 HO CHUEN HIM 何存謙", "6C19 LEI DEYU 雷德裕", "6C20 LI LOK HIM 李樂謙",
+            "6C21 TANG HONG YU 鄧康裕", "6C22 TANG LONG KIU ROY 鄧朗翹", "6C23 TONG CHEUK HAN 唐卓恒", "6C24 TSANG CHEUK HIM 曾焯謙", "6C25 WEI KWING YU 魏炯裕",
+            "6C26 WONG CHUN CHIU 黃俊潮", "6C27 YEUNG LOK TO 楊洛滔", "6C28 ZHU SUI WAN TONY 諸瑞雲"
+        ],
+        "6D": [
+            "6D01 CHAN CHI WING 陳智穎", "6D02 CHAN SUM YIN 陳心言", "6D03 CHAN YUEN LAM 陳菀琳", "6D04 CHONG YIU TONG 莊曜同", "6D05 CHOW HO YAN 周可欣",
+            "6D06 FENG YINGXI 馮穎熙", "6D07 HO MAN HIU CYNTHIA 何旻曉", "6D08 HO TSZ KEI 何沚錡", "6D09 KAN SUM YUET 簡心悅", "6D10 LAI HIU YUET 黎曉悅",
+            "6D11 LAM CHUNG YAN 林頌恩", "6D12 LAU OI YING 劉靄瀅", "6D13 TANG HEI LAM 鄧希琳", "6D14 WONG KIU YAN 黃喬欣", "6D15 WONG WING HEI 黃詠希",
+            "6D16 CHAN PAK KIU 陳柏翹", "6D17 CHAN PUN LAP 陳本立", "6D18 CHAN WAI WA 陳偉華", "6D19 CHOI WAN CHAK 蔡昀澤", "6D20 CHONG HO CHING 莊皓程",
+            "6D21 HO PAK YIN 何珀賢", "6D22 KWONG HOI KIT 鄺凱杰", "6D23 LAU KAI SUN 劉啟辰", "6D24 LOK WAI TO 駱韋圖", "6D25 PENG YIN POK 彭彥博",
+            "6D26 TSE KWOK KEUNG 謝國強", "6D27 TSOI YUK SAN 蔡旭燊", "6D28 WONG CHUN YIU 王雋堯", "6D29 ZHANG TIN YU 張天宇"
+        ]
+    };
+
+    let selectedStudents = [];
+
+    function setActionMode(mode) {
+        document.getElementById('actionMode').value = mode;
+        const btnAdd = document.getElementById('btnModeAdd');
+        const btnDeduct = document.getElementById('btnModeDeduct');
+        const submitBtn = document.getElementById('submitBtn');
+        const starsLabel = document.getElementById('starsLabel');
+        const header = document.getElementById('formHeader');
+
+        if (mode === 'ADD') {
+            btnAdd.className = 'action-btn active-add';
+            btnDeduct.className = 'action-btn';
+            submitBtn.className = '';
+            submitBtn.textContent = 'Submit Stars';
+            starsLabel.textContent = 'Stars Awarded';
+            header.textContent = '⭐ Star Reward System';
+        } else {
+            btnDeduct.className = 'action-btn active-deduct';
+            btnAdd.className = 'action-btn';
+            submitBtn.className = 'deduct-mode';
+            submitBtn.textContent = 'Deduct Stars';
+            starsLabel.textContent = 'Stars Deducted';
+            header.textContent = '🎁 Reward Redemption';
+        }
+    }
+
+    function setMode(mode) {
+        document.getElementById('rewardType').value = mode;
+        const classSec = document.getElementById('classStreamSection');
+        const studentSec = document.getElementById('studentStreamSection');
+        const reqClass = document.getElementById('rewardingClass');
+
+        if(mode === 'class') {
+            document.getElementById('btnClass').classList.add('active');
+            document.getElementById('btnStudent').classList.remove('active');
+            classSec.style.display = 'block';
+            studentSec.style.display = 'none';
+            reqClass.setAttribute('required', 'required');
+        } else {
+            document.getElementById('btnStudent').classList.add('active');
+            document.getElementById('btnClass').classList.remove('active');
+            classSec.style.display = 'none';
+            studentSec.style.display = 'block';
+            reqClass.removeAttribute('required');
+        }
+    }
+
+    function populateStudents() {
+        const cls = document.getElementById('studentClass').value;
+        const select = document.getElementById('studentSelect');
+        select.innerHTML = '<option value="" disabled selected>Select a student</option>';
+        
+        if (CLASS_STUDENTS[cls]) {
+            CLASS_STUDENTS[cls].forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                select.appendChild(opt);
+            });
+        }
+    }
+
+    function addStudentTag() {
+        const select = document.getElementById('studentSelect');
+        const val = select.value;
+        if (val && !selectedStudents.includes(val)) {
+            selectedStudents.push(val);
+            renderStudentTags();
+        }
+    }
+
+    function removeStudentTag(name) {
+        selectedStudents = selectedStudents.filter(s => s !== name);
+        renderStudentTags();
+    }
+
+    function renderStudentTags() {
+        const container = document.getElementById('selectedStudentsList');
+        container.innerHTML = '';
+        selectedStudents.forEach(name => {
+            const tag = document.createElement('div');
+            tag.className = 'tag';
+            tag.innerHTML = `${name} <span onclick="removeStudentTag('${name}')">&times;</span>`;
+            container.appendChild(tag);
+        });
+        document.getElementById('studentNames').value = selectedStudents.join(',');
+    }
+
+    function validateForm() {
+        const teacher = document.getElementById('teacherName').value;
+        const code = document.getElementById('passcode').value;
+        const err = document.getElementById('passcodeError');
+
+        if (TEACHER_PASSCODES[teacher] && TEACHER_PASSCODES[teacher] !== code) {
+            err.style.display = 'block';
+            return false;
+        }
+        
+        const mode = document.getElementById('rewardType').value;
+        if (mode === 'student' && selectedStudents.length === 0) {
+            alert('Please add at least one student before submitting.');
+            return false;
+        }
+
+        err.style.display = 'none';
+        return true;
+    }
+
+    function resetPasscodeValidation() {
+        document.getElementById('passcodeError').style.display = 'none';
+    }
+</script>
+</body>
+</html>
