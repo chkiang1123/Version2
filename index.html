@@ -182,7 +182,8 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyEmsdGHvubOo7uf7H-Pmy7TJ19ym52VRFPY8r_DtLAjf_JeQBkbsoKvqSR0F4SGQNp/exec";
+    // Extract Spreadsheet ID from Google Sheet URL
+    const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE"; // <--- Replace with your Sheet ID
     let isSubmitting = false;
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -530,30 +531,30 @@ const CLASS_STUDENTS = {
         errDiv.innerHTML = message;
     }
 
-    // JSONP Helper to bypass CORS completely
-    function fetchJSONP(url) {
-        return new Promise((resolve, reject) => {
-            const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
-            const script = document.createElement('script');
+    // Direct CSV Reader from Google Sheet Balance Tab
+    async function fetchBalanceSheetData() {
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Balance`;
+        const response = await fetch(csvUrl);
+        const text = await response.text();
+        
+        const lines = text.split('\n');
+        const classBalances = {};
+        const studentBalances = {};
+
+        lines.slice(1).forEach(line => {
+            const row = line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
             
-            window[callbackName] = function(data) {
-                delete window[callbackName];
-                document.body.removeChild(script);
-                resolve(data);
-            };
-
-            script.onerror = function() {
-                delete window[callbackName];
-                if (document.body.contains(script)) {
-                    document.body.removeChild(script);
-                }
-                reject(new Error('Network error or Google Apps Script JSONP timeout.'));
-            };
-
-            const fullUrl = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
-            script.src = fullUrl;
-            document.body.appendChild(script);
+            // Class (Col A) & Class Stars (Col B)
+            if (row[0]) {
+                classBalances[row[0].toLowerCase()] = parseInt(row[1], 10) || 0;
+            }
+            // Student (Col G / index 6) & Student Stars (Col H / index 7)
+            if (row[6]) {
+                studentBalances[row[6].toLowerCase()] = parseInt(row[7], 10) || 0;
+            }
         });
+
+        return { classBalances, studentBalances };
     }
 
     async function handleFormSubmit(event) {
@@ -582,34 +583,31 @@ const CLASS_STUDENTS = {
         const submitBtn = document.getElementById('submitBtn');
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Verifying Balance...';
 
         try {
             if (actionMode === 'DEDUCT') {
-                const targets = mode === 'class' ? 
-                    [document.getElementById('rewardingClass').value] : 
-                    selectedStudents;
+                submitBtn.textContent = 'Checking Balance...';
                 
-                const queryUrl = `${SCRIPT_URL}?action=checkBalance&targetType=${mode}&targets=${encodeURIComponent(targets.join(','))}`;
-                const result = await fetchJSONP(queryUrl);
+                const { classBalances, studentBalances } = await fetchBalanceSheetData();
+                let insufficientList = [];
 
-                if (result.status === "error") {
-                    alert("Server Error checking balance: " + result.message);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Deduct Stars';
-                    return;
+                if (mode === 'class') {
+                    const cls = document.getElementById('rewardingClass').value;
+                    const ownedStars = classBalances[cls.toLowerCase()] || 0;
+                    if (ownedStars < starsRequested) {
+                        insufficientList.push(`• Class <strong>${cls}</strong> currently has <strong>${ownedStars} star(s)</strong>.`);
+                    }
+                } else {
+                    selectedStudents.forEach(student => {
+                        const ownedStars = studentBalances[student.toLowerCase()] || 0;
+                        if (ownedStars < starsRequested) {
+                            insufficientList.push(`• <strong>${student}</strong> currently has <strong>${ownedStars} star(s)</strong>.`);
+                        }
+                    });
                 }
 
-                let insufficientList = [];
-                targets.forEach(target => {
-                    const currentBalance = (result.balances && result.balances[target] !== undefined) ? result.balances[target] : 0;
-                    if (currentBalance < starsRequested) {
-                        insufficientList.push(`• <strong>${target}</strong> currently has <strong>${currentBalance} star(s)</strong> (Requested: ${starsRequested})`);
-                    }
-                });
-
                 if (insufficientList.length > 0) {
-                    showBalanceError(`⚠️ <strong>Redemption Blocked!</strong> Insufficient Stars in Balance tab:<br>${insufficientList.join('<br>')}`);
+                    showBalanceError(`❌ <strong>Redemption Rejected!</strong> Not enough stars.<br>${insufficientList.join('<br>')}<br><br>Required: <strong>${starsRequested} star(s)</strong>.`);
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Deduct Stars';
                     return;
@@ -626,7 +624,7 @@ const CLASS_STUDENTS = {
             };
 
         } catch (error) {
-            alert('An error occurred during balance verification: ' + error.message);
+            alert('Error checking balance. Ensure Google Sheet is shared as "Anyone with link - Viewer". Details: ' + error.message);
             submitBtn.disabled = false;
             submitBtn.textContent = actionMode === 'ADD' ? 'Submit Stars' : 'Deduct Stars';
         }
