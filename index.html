@@ -211,7 +211,7 @@
         "Yip Kin Man": "538169", "Yu Siu Ping": "284605"
     };
 
-    const CLASS_STUDENTS = {
+const CLASS_STUDENTS = {
         "1A": [
             "1A01 CHAN SIN YING 陳倩凝", "1A02 CHAN SUM YIN 陳芯賢", "1A03 CHAN SZE LOK 陳詩駱", "1A04 CHAN TSE YU 陳沚如", "1A05 CHAN TSZ WING 陳紫穎",
             "1A06 CHIU TSZ YUE 趙紫妤", "1A07 IP NGA CHING 葉雅澄", "1A08 LAI CHUNG YAN 賴頌恩", "1A09 LAM HEI TUNG CALEY 林桸橦", "1A10 LAW PO HEI 羅寶曦",
@@ -530,10 +530,34 @@
         errDiv.innerHTML = message;
     }
 
+    // JSONP Helper to bypass CORS completely
+    function fetchJSONP(url) {
+        return new Promise((resolve, reject) => {
+            const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
+            const script = document.createElement('script');
+            
+            window[callbackName] = function(data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                resolve(data);
+            };
+
+            script.onerror = function() {
+                delete window[callbackName];
+                if (document.body.contains(script)) {
+                    document.body.removeChild(script);
+                }
+                reject(new Error('Network error or Google Apps Script JSONP timeout.'));
+            };
+
+            const fullUrl = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+            script.src = fullUrl;
+            document.body.appendChild(script);
+        });
+    }
+
     async function handleFormSubmit(event) {
-        if (isSubmitting) {
-            return true;
-        }
+        if (isSubmitting) return true;
 
         event.preventDefault();
         hideBalanceError();
@@ -567,8 +591,14 @@
                     selectedStudents;
                 
                 const queryUrl = `${SCRIPT_URL}?action=checkBalance&targetType=${mode}&targets=${encodeURIComponent(targets.join(','))}`;
-                const response = await fetch(queryUrl);
-                const result = await response.json();
+                const result = await fetchJSONP(queryUrl);
+
+                if (result.status === "error") {
+                    alert("Server Error checking balance: " + result.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Deduct Stars';
+                    return;
+                }
 
                 let insufficientList = [];
                 targets.forEach(target => {
