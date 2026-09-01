@@ -182,8 +182,7 @@
 </div>
 
 <script>
-    // Extract Spreadsheet ID from Google Sheet URL
-    const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE"; // <--- Replace with your Sheet ID
+    const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE"; // <--- Ensure your sheet ID is placed here
     let isSubmitting = false;
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -531,26 +530,55 @@ const CLASS_STUDENTS = {
         errDiv.innerHTML = message;
     }
 
-    // Direct CSV Reader from Google Sheet Balance Tab
+    // String Normalizer to remove extra spaces, quotes, and normalize case
+    function normalizeStr(str) {
+        return str ? str.replace(/"/g, '').replace(/\s+/g, ' ').trim().toLowerCase() : '';
+    }
+
+    // Proper CSV Parser handling quotes and internal commas
+    function parseCSVRow(rowText) {
+        const result = [];
+        let insideQuote = false;
+        let entry = '';
+        for (let i = 0; i < rowText.length; i++) {
+            const char = rowText[i];
+            if (char === '"') {
+                insideQuote = !insideQuote;
+            } else if (char === ',' && !insideQuote) {
+                result.push(entry.trim());
+                entry = '';
+            } else {
+                entry += char;
+            }
+        }
+        result.push(entry.trim());
+        return result;
+    }
+
     async function fetchBalanceSheetData() {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Balance`;
         const response = await fetch(csvUrl);
         const text = await response.text();
         
-        const lines = text.split('\n');
+        const lines = text.split(/\r?\n/);
         const classBalances = {};
         const studentBalances = {};
 
         lines.slice(1).forEach(line => {
-            const row = line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
+            if (!line.trim()) return;
+            const row = parseCSVRow(line);
             
-            // Class (Col A) & Class Stars (Col B)
+            // Class (Col A / index 0) & Class Stars (Col B / index 1)
             if (row[0]) {
-                classBalances[row[0].toLowerCase()] = parseInt(row[1], 10) || 0;
+                const className = normalizeStr(row[0]);
+                const stars = parseInt(row[1], 10) || 0;
+                classBalances[className] = stars;
             }
-            // Student (Col G / index 6) & Student Stars (Col H / index 7)
-            if (row[6]) {
-                studentBalances[row[6].toLowerCase()] = parseInt(row[7], 10) || 0;
+            // Student Name (Col G / index 6) & Total Stars (Col H / index 7)
+            if (row.length >= 8 && row[6]) {
+                const studentName = normalizeStr(row[6]);
+                const stars = parseInt(row[7], 10) || 0;
+                studentBalances[studentName] = stars;
             }
         });
 
@@ -593,13 +621,15 @@ const CLASS_STUDENTS = {
 
                 if (mode === 'class') {
                     const cls = document.getElementById('rewardingClass').value;
-                    const ownedStars = classBalances[cls.toLowerCase()] || 0;
+                    const key = normalizeStr(cls);
+                    const ownedStars = classBalances[key] !== undefined ? classBalances[key] : 0;
                     if (ownedStars < starsRequested) {
                         insufficientList.push(`• Class <strong>${cls}</strong> currently has <strong>${ownedStars} star(s)</strong>.`);
                     }
                 } else {
                     selectedStudents.forEach(student => {
-                        const ownedStars = studentBalances[student.toLowerCase()] || 0;
+                        const key = normalizeStr(student);
+                        const ownedStars = studentBalances[key] !== undefined ? studentBalances[key] : 0;
                         if (ownedStars < starsRequested) {
                             insufficientList.push(`• <strong>${student}</strong> currently has <strong>${ownedStars} star(s)</strong>.`);
                         }
