@@ -37,7 +37,7 @@
         button:disabled { opacity: 0.6; cursor: not-allowed; }
         
         .error-msg { color: #dc2626; font-size: 12px; display: none; margin-top: 4px; font-weight: bold; }
-        .balance-error { background-color: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; border: 1px solid #f87171; margin-top: 15px; font-size: 13px; font-weight: bold; display: none; }
+        .balance-error { background-color: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; border: 1px solid #f87171; margin-top: 15px; font-size: 13px; font-weight: bold; display: none; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -210,6 +210,7 @@
         "Wong Shing Fung": "860532", "Wong Suk Yin": "314976", "Yao Hing Man": "975204",
         "Yip Kin Man": "538169", "Yu Siu Ping": "284605"
     };
+
 const CLASS_STUDENTS = {
         "1A": [
             "1A01 CHAN SIN YING 陳倩凝", "1A02 CHAN SUM YIN 陳芯賢", "1A03 CHAN SZE LOK 陳詩駱", "1A04 CHAN TSE YU 陳沚如", "1A05 CHAN TSZ WING 陳紫穎",
@@ -557,7 +558,7 @@ const CLASS_STUDENTS = {
         const submitBtn = document.getElementById('submitBtn');
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Processing...';
+        submitBtn.textContent = 'Verifying Balance...';
 
         try {
             if (actionMode === 'DEDUCT') {
@@ -573,18 +574,19 @@ const CLASS_STUDENTS = {
                 targets.forEach(target => {
                     const currentBalance = (result.balances && result.balances[target] !== undefined) ? result.balances[target] : 0;
                     if (currentBalance < starsRequested) {
-                        insufficientList.push(`• <strong>${target}</strong>: ${currentBalance} star(s) remaining (requested ${starsRequested})`);
+                        insufficientList.push(`• <strong>${target}</strong> currently has <strong>${currentBalance} star(s)</strong> (Requested: ${starsRequested})`);
                     }
                 });
 
                 if (insufficientList.length > 0) {
-                    showBalanceError(`⚠️ Cannot proceed with redemption. Insufficient balance:<br>${insufficientList.join('<br>')}`);
+                    showBalanceError(`⚠️ <strong>Redemption Blocked!</strong> Insufficient Stars in Balance tab:<br>${insufficientList.join('<br>')}`);
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Deduct Stars';
                     return;
                 }
             }
 
+            submitBtn.textContent = 'Processing...';
             isSubmitting = true;
             document.getElementById('rewardForm').submit();
 
