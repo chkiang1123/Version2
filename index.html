@@ -113,7 +113,7 @@
         </select>
 
         <label for="passcode">6-Digit Secret Passcode</label>
-        <input type="password" id="passcode" name="passcode" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit code" required>
+        <input type="password" id="passcode" name="passcode" maxlength="6" pattern="\d{6}" placeholder="Enter 6-digit code" autocomplete="new-password" required>
         <div id="passcodeError" class="error-msg">Incorrect passcode for selected teacher!</div>
 
         <label>Target Type</label>
@@ -125,7 +125,7 @@
 
         <div id="classStreamSection">
             <label for="rewardingClass">Select Class</label>
-            <select name="rewardingClass" id="rewardingClass">
+            <select name="rewardingClass" id="rewardingClass" required>
                 <option value="" disabled selected>Select class (1A - 6D)</option>
                 <option value="1A">1A</option><option value="1B">1B</option><option value="1C">1C</option><option value="1D">1D</option>
                 <option value="2A">2A</option><option value="2B">2B</option><option value="2C">2C</option><option value="2D">2D</option>
@@ -177,6 +177,11 @@
 </div>
 
 <script>
+    // Force clear passcode on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('passcode').value = '';
+    });
+
     const TEACHER_PASSCODES = {
         "Chan Hin Chiu": "849201", "Chan Ka Ying, Anna": "315682", "Chan Kwok Keung": "762049",
         "Chan Kwok Kwan": "194830", "Chan Lok Hin": "520937", "Chan Oi Yan, Irene": "683154",
@@ -199,7 +204,6 @@
         "Yip Kin Man": "538169", "Yu Siu Ping": "284605"
     };
 
-    // Populated student database mapped to class names (Replace/add your full list here)
 const CLASS_STUDENTS = {
         "1A": [
             "1A01 CHAN SIN YING 陳倩凝", "1A02 CHAN SUM YIN 陳芯賢", "1A03 CHAN SZE LOK 陳詩駱", "1A04 CHAN TSE YU 陳沚如", "1A05 CHAN TSZ WING 陳紫穎",
