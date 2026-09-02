@@ -8,16 +8,16 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; margin: 0; }
         .form-container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
         h2 { text-align: center; color: #333; margin-bottom: 10px; margin-top: 0; }
-        
+
         .action-mode-group { display: flex; gap: 10px; margin-bottom: 20px; }
         .action-btn { flex: 1; padding: 12px; border: 2px solid #ccc; background: #f3f4f6; color: #555; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; transition: 0.2s; }
         .action-btn.active-add { background: #eab308; color: white; border-color: #ca8a04; }
         .action-btn.active-deduct { background: #ef4444; color: white; border-color: #dc2626; }
 
         label { font-weight: bold; display: block; margin-top: 15px; color: #555; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
         textarea { resize: vertical; height: 70px; }
-        
+
         .toggle-group { display: flex; gap: 10px; margin-top: 10px; }
         .toggle-btn { flex: 1; padding: 10px; border: 2px solid #eab308; background: white; color: #333; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; }
         .toggle-btn.active { background: #eab308; color: white; }
@@ -35,9 +35,22 @@
         button[type="submit"].deduct-mode:hover { background-color: #dc2626; }
         button[type="submit"]:hover { background-color: #ca8a04; }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
-        
+
         .error-msg { color: #dc2626; font-size: 12px; display: none; margin-top: 4px; font-weight: bold; }
         .balance-error { background-color: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; border: 1px solid #f87171; margin-top: 15px; font-size: 13px; font-weight: bold; display: none; line-height: 1.5; }
+
+        /* Toast notification styles */
+        .toast-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.2s ease; }
+        .toast-box { background: white; padding: 24px 28px; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.18); max-width: 340px; width: 90%; text-align: center; animation: scaleIn 0.25s ease; }
+        .toast-box p { margin: 0 0 18px; font-size: 15px; color: #333; line-height: 1.5; }
+        .toast-box button { background: #eab308; color: white; border: none; padding: 10px 32px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .toast-box button:hover { background: #ca8a04; }
+        .toast-box.success-toast button { background: #22c55e; }
+        .toast-box.success-toast button:hover { background: #16a34a; }
+        .toast-box.error-toast button { background: #ef4444; }
+        .toast-box.error-toast button:hover { background: #dc2626; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -48,71 +61,62 @@
         <div id="btnModeAdd" class="action-btn active-add" onclick="setActionMode('ADD')">➕ Add Stars</div>
         <div id="btnModeDeduct" class="action-btn" onclick="setActionMode('DEDUCT')">➖ Redeem / Deduct</div>
     </div>
-    
+
     <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
     <form id="rewardForm" action="https://script.google.com/macros/s/AKfycbyEmsdGHvubOo7uf7H-Pmy7TJ19ym52VRFPY8r_DtLAjf_JeQBkbsoKvqSR0F4SGQNp/exec" method="POST" target="hidden_iframe" onsubmit="handleFormSubmit(event)">
-        
+
         <input type="hidden" name="actionMode" id="actionMode" value="ADD">
 
         <label for="teacherName">Teacher's Name</label>
         <select name="teacherName" id="teacherName" required onchange="resetPasscodeValidation()">
             <option value="" disabled selected>Select your name</option>
-            <option value="Chan Hin Chiu">Chan Hin Chiu</option>
-            <option value="Chan Ka Ying, Anna">Chan Ka Ying, Anna</option>
-            <option value="Chan Kwok Keung">Chan Kwok Keung</option>
-            <option value="Chan Kwok Kwan">Chan Kwok Kwan</option>
-            <option value="Chan Lok Hin">Chan Lok Hin</option>
-            <option value="Chan Oi Yan, Irene">Chan Oi Yan, Irene</option>
-            <option value="Chan Shuk Man">Chan Shuk Man</option>
-            <option value="Chan Tsz Man">Chan Tsz Man</option>
-            <option value="Chan Wing Yin, Winnie">Chan Wing Yin, Winnie</option>
-            <option value="Chan Yau Sing">Chan Yau Sing</option>
-            <option value="Chan Ying Yuk">Chan Ying Yuk</option>
-            <option value="Chan Yuk Wah">Chan Yuk Wah</option>
-            <option value="Chan Yung Cheung">Chan Yung Cheung</option>
-            <option value="Cheung Chi Wai">Cheung Chi Wai</option>
-            <option value="Cheung Hoi Ning">Cheung Hoi Ning</option>
-            <option value="Cheung Ka Man">Cheung Ka Man</option>
-            <option value="Cheung Man Bun">Cheung Man Bun</option>
-            <option value="Chu Ki Cheong">Chu Ki Cheong</option>
-            <option value="Chui Fung Ming, Trinni">Chui Fung Ming, Trinni</option>
-            <option value="Chung Yuen Wah">Chung Yuen Wah</option>
-            <option value="Fong Pik Yuk">Fong Pik Yuk</option>
-            <option value="Heung Pak Yan">Heung Pak Yan</option>
-            <option value="Hung Chun Man">Hung Chun Man</option>
-            <option value="Hussain Nibla Shabir">Hussain Nibla Shabir</option>
-            <option value="Kiang Chi Hong">Kiang Chi Hong</option>
-            <option value="Kong Lai Han">Kong Lai Han</option>
-            <option value="Koo Yiu">Koo Yiu</option>
-            <option value="Kwok Pui Pui, Alison">Kwok Pui Pui, Alison</option>
-            <option value="Lam Ka Yan">Lam Ka Yan</option>
-            <option value="Lam Mei Po">Lam Mei Po</option>
-            <option value="Lam On Nei">Lam On Nei</option>
-            <option value="Lam Shuk Ying">Lam Shuk Ying</option>
-            <option value="Lam Wai Ling">Lam Wai Ling</option>
-            <option value="Lam Wai Man">Lam Wai Man</option>
-            <option value="Lau Nga Man">Lau Nga Man</option>
-            <option value="Lau Wing Kwan">Lau Wing Kwan</option>
-            <option value="Leung Pui Ling">Leung Pui Ling</option>
-            <option value="Li Chi Shing">Li Chi Shing</option>
-            <option value="Li Silin">Li Silin</option>
-            <option value="Lo Chiu Wing">Lo Chiu Wing</option>
-            <option value="Lui Yu Fong, Esther">Lui Yu Fong, Esther</option>
-            <option value="Mak Sin Yee">Mak Sin Yee</option>
-            <option value="Mak Shuk Man">Mak Shuk Man</option>
-            <option value="Mak Tsui Han">Mak Tsui Han</option>
-            <option value="Ng Oi Yan">Ng Oi Yan</option>
-            <option value="Sha Wai Pak">Sha Wai Pak</option>
-            <option value="Suen Chun Long">Suen Chun Long</option>
-            <option value="Sung Lai Ying">Sung Lai Ying</option>
-            <option value="Toa Wai Fook">Toa Wai Fook</option>
-            <option value="Tsao Man Fai">Tsao Man Fai</option>
-            <option value="Wong Kwok Tai">Wong Kwok Tai</option>
-            <option value="Wong Shing Fung">Wong Shing Fung</option>
-            <option value="Wong Suk Yin">Wong Suk Yin</option>
-            <option value="Yao Hing Man">Yao Hing Man</option>
-            <option value="Yip Kin Man">Yip Kin Man</option>
-            <option value="Yu Siu Ping">Yu Siu Ping</option>
+            <option value="Bezant Samantha Diana (BSD)">Bezant Samantha Diana (BSD)</option>
+            <option value="Chan Hin Chiu (CHC)">Chan Hin Chiu (CHC)</option>
+            <option value="Chan Ka Ying Anna (CKY)">Chan Ka Ying Anna (CKY)</option>
+            <option value="Chan Kwok Keung (CKK1)">Chan Kwok Keung (CKK1)</option>
+            <option value="Chan Kwok Kwan (CKK)">Chan Kwok Kwan (CKK)</option>
+            <option value="Chan Lok Hin (CLH)">Chan Lok Hin (CLH)</option>
+            <option value="Chan Lok In (CLI)">Chan Lok In (CLI)</option>
+            <option value="Chan Oi Yan (COY)">Chan Oi Yan (COY)</option>
+            <option value="Chan Shuk Man (CSM)">Chan Shuk Man (CSM)</option>
+            <option value="Chan Tsz Man (CTM)">Chan Tsz Man (CTM)</option>
+            <option value="Chan Wing Yin (CWY)">Chan Wing Yin (CWY)</option>
+            <option value="Chan Yau Sing (CYS)">Chan Yau Sing (CYS)</option>
+            <option value="Chan Yuk Wah (CYW)">Chan Yuk Wah (CYW)</option>
+            <option value="Chan Yung Cheung (CYC)">Chan Yung Cheung (CYC)</option>
+            <option value="Cheung Chi Wai (CCW)">Cheung Chi Wai (CCW)</option>
+            <option value="Cheung Hoi Ning (CHN)">Cheung Hoi Ning (CHN)</option>
+            <option value="Cheung Man Bun (CMB)">Cheung Man Bun (CMB)</option>
+            <option value="Cheung Pak Ho (CPH)">Cheung Pak Ho (CPH)</option>
+            <option value="Chu Ki Cheong (CKC)">Chu Ki Cheong (CKC)</option>
+            <option value="Chung Ting Kai (CTK)">Chung Ting Kai (CTK)</option>
+            <option value="Chung Yuen Wah (CYW1)">Chung Yuen Wah (CYW1)</option>
+            <option value="Fong Pik Yuk (FPY)">Fong Pik Yuk (FPY)</option>
+            <option value="Ho Yi Lok (HYL)">Ho Yi Lok (HYL)</option>
+            <option value="Hung Chun Man (HCM)">Hung Chun Man (HCM)</option>
+            <option value="Hussain Nibla Shabir (HNS)">Hussain Nibla Shabir (HNS)</option>
+            <option value="Kiang Chi Hong (KCH)">Kiang Chi Hong (KCH)</option>
+            <option value="Kong Lai Han (KLH)">Kong Lai Han (KLH)</option>
+            <option value="Koo Yiu (KY)">Koo Yiu (KY)</option>
+            <option value="Kwok Pui Pui (KPP)">Kwok Pui Pui (KPP)</option>
+            <option value="Lam Ka Yan (LKY)">Lam Ka Yan (LKY)</option>
+            <option value="Lam Mei Po (LMP)">Lam Mei Po (LMP)</option>
+            <option value="Lam On Nei (LON)">Lam On Nei (LON)</option>
+            <option value="Lam Shuk Ying (LSY)">Lam Shuk Ying (LSY)</option>
+            <option value="Lam Wai Ling (LWL)">Lam Wai Ling (LWL)</option>
+            <option value="Lam Wai Man (LWM)">Lam Wai Man (LWM)</option>
+            <option value="Lau Nga Man (LNM)">Lau Nga Man (LNM)</option>
+            <option value="Lau Wing Kwan (LWK1)">Lau Wing Kwan (LWK1)</option>
+            <option value="Leung Pui Ling (LPL)">Leung Pui Ling (LPL)</option>
+            <option value="Li Chi Shing (LCS)">Li Chi Shing (LCS)</option>
+            <option value="Li Silin (LS)">Li Silin (LS)</option>
+            <option value="Lo Chiu Wing (LCW)">Lo Chiu Wing (LCW)</option>
+            <option value="Lui Yu Fong (LYF)">Lui Yu Fong (LYF)</option>
+            <option value="Mak Shuk Man (MSM)">Mak Shuk Man (MSM)</option>
+            <option value="Mak Sin Yee (MSY)">Mak Sin Yee (MSY)</option>
+            <option value="Mak Tsui Han (MTH)">Mak Tsui Han (MTH)</option>
+            <option value="Ng Oi Yan (NOY)">Ng Oi Yan (NOY)</option>
+            <option value="Sha Wai Pak (SWP)">Sha Wai Pak (SWP)</option>
         </select>
 
         <label for="passcode">6-Digit Secret Passcode</label>
@@ -182,36 +186,79 @@
 </div>
 
 <script>
-    const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE"; // <--- Ensure your sheet ID is placed here
-    let isSubmitting = false;
+    var SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
+    var isSubmitting = false;
 
-    window.addEventListener('DOMContentLoaded', () => {
+    /* ---- Custom toast (replaces alert) ---- */
+    function showToast(message, type) {
+        var overlay = document.createElement('div');
+        overlay.className = 'toast-overlay';
+        var boxClass = 'toast-box';
+        if (type === 'success') boxClass += ' success-toast';
+        else if (type === 'error') boxClass += ' error-toast';
+        overlay.innerHTML =
+            '<div class="' + boxClass + '">' +
+                '<p>' + message + '</p>' +
+                '<button onclick="this.closest(\'.toast-overlay\').remove()">OK</button>' +
+            '</div>';
+        document.body.appendChild(overlay);
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
         document.getElementById('passcode').value = '';
     });
 
-    const TEACHER_PASSCODES = {
-        "Chan Hin Chiu": "849201", "Chan Ka Ying, Anna": "315682", "Chan Kwok Keung": "762049",
-        "Chan Kwok Kwan": "194830", "Chan Lok Hin": "520937", "Chan Oi Yan, Irene": "683154",
-        "Chan Shuk Man": "941720", "Chan Tsz Man": "237586", "Chan Wing Yin, Winnie": "604815",
-        "Chan Yau Sing": "852963", "Chan Ying Yuk": "149302", "Chan Yuk Wah": "736158",
-        "Chan Yung Cheung": "428901", "Cheung Chi Wai": "915234", "Cheung Hoi Ning": "380617",
-        "Cheung Ka Man": "674290", "Cheung Man Bun": "259148", "Chu Ki Cheong": "803716",
-        "Chui Fung Ming, Trinni": "516482", "Chung Yuen Wah": "932057", "Fong Pik Yuk": "471829",
-        "Heung Pak Yan": "128493", "Hung Chun Man": "659304", "Hussain Nibla Shabir": "304718",
-        "Kiang Chi Hong": "892156", "Kong Lai Han": "430872", "Koo Yiu": "715943",
-        "Kwok Pui Pui, Alison": "268301", "Lam Ka Yan": "594187", "Lam Mei Po": "931640",
-        "Lam On Nei": "172594", "Lam Shuk Ying": "806239", "Lam Wai Ling": "349015",
-        "Lam Wai Man": "685721", "Lau Nga Man": "210493", "Lau Wing Kwan": "754820",
-        "Leung Pui Ling": "493106", "Li Chi Shing": "826539", "Li Silin": "139704",
-        "Lo Chiu Wing": "648215", "Lui Yu Fong, Esther": "205938", "Mak Sin Yee": "781409",
-        "Mak Shuk Man": "369251", "Mak Tsui Han": "924810", "Ng Oi Yan": "510374",
-        "Sha Wai Pak": "837192", "Suen Chun Long": "246915", "Sung Lai Ying": "691483",
-        "Toa Wai Fook": "158027", "Tsao Man Fai": "703849", "Wong Kwok Tai": "429163",
-        "Wong Shing Fung": "860532", "Wong Suk Yin": "314976", "Yao Hing Man": "975204",
-        "Yip Kin Man": "538169", "Yu Siu Ping": "284605"
+    var TEACHER_PASSCODES = {
+        "Bezant Samantha Diana (BSD)": "770487",
+        "Chan Hin Chiu (CHC)": "849201",
+        "Chan Ka Ying Anna (CKY)": "216739",
+        "Chan Kwok Keung (CKK1)": "762049",
+        "Chan Kwok Kwan (CKK)": "194830",
+        "Chan Lok Hin (CLH)": "520937",
+        "Chan Lok In (CLI)": "126225",
+        "Chan Oi Yan (COY)": "683154",
+        "Chan Shuk Man (CSM)": "941720",
+        "Chan Tsz Man (CTM)": "237586",
+        "Chan Wing Yin (CWY)": "604815",
+        "Chan Yau Sing (CYS)": "852963",
+        "Chan Yuk Wah (CYW)": "736158",
+        "Chan Yung Cheung (CYC)": "428901",
+        "Cheung Chi Wai (CCW)": "915234",
+        "Cheung Hoi Ning (CHN)": "380617",
+        "Cheung Man Bun (CMB)": "259148",
+        "Cheung Pak Ho (CPH)": "877572",
+        "Chu Ki Cheong (CKC)": "803716",
+        "Chung Ting Kai (CTK)": "388389",
+        "Chung Yuen Wah (CYW1)": "932057",
+        "Fong Pik Yuk (FPY)": "471829",
+        "Ho Yi Lok (HYL)": "356787",
+        "Hung Chun Man (HCM)": "659304",
+        "Hussain Nibla Shabir (HNS)": "304718",
+        "Kiang Chi Hong (KCH)": "892156",
+        "Kong Lai Han (KLH)": "430872",
+        "Koo Yiu (KY)": "715943",
+        "Kwok Pui Pui (KPP)": "268301",
+        "Lam Ka Yan (LKY)": "594187",
+        "Lam Mei Po (LMP)": "931640",
+        "Lam On Nei (LON)": "172594",
+        "Lam Shuk Ying (LSY)": "806239",
+        "Lam Wai Ling (LWL)": "349015",
+        "Lam Wai Man (LWM)": "685721",
+        "Lau Nga Man (LNM)": "210493",
+        "Lau Wing Kwan (LWK1)": "754820",
+        "Leung Pui Ling (LPL)": "493106",
+        "Li Chi Shing (LCS)": "826539",
+        "Li Silin (LS)": "139704",
+        "Lo Chiu Wing (LCW)": "648215",
+        "Lui Yu Fong (LYF)": "205938",
+        "Mak Shuk Man (MSM)": "369251",
+        "Mak Sin Yee (MSY)": "781409",
+        "Mak Tsui Han (MTH)": "924810",
+        "Ng Oi Yan (NOY)": "510374",
+        "Sha Wai Pak (SWP)": "837192"
     };
 
-const CLASS_STUDENTS = {
+    var CLASS_STUDENTS = {
         "1A": [
             "1A01 CHAN SIN YING 陳倩凝", "1A02 CHAN SUM YIN 陳芯賢", "1A03 CHAN SZE LOK 陳詩駱", "1A04 CHAN TSE YU 陳沚如", "1A05 CHAN TSZ WING 陳紫穎",
             "1A06 CHIU TSZ YUE 趙紫妤", "1A07 IP NGA CHING 葉雅澄", "1A08 LAI CHUNG YAN 賴頌恩", "1A09 LAM HEI TUNG CALEY 林桸橦", "1A10 LAW PO HEI 羅寶曦",
@@ -422,15 +469,15 @@ const CLASS_STUDENTS = {
         ]
     };
 
-    let selectedStudents = [];
+    var selectedStudents = [];
 
     function setActionMode(mode) {
         document.getElementById('actionMode').value = mode;
-        const btnAdd = document.getElementById('btnModeAdd');
-        const btnDeduct = document.getElementById('btnModeDeduct');
-        const submitBtn = document.getElementById('submitBtn');
-        const starsLabel = document.getElementById('starsLabel');
-        const header = document.getElementById('formHeader');
+        var btnAdd = document.getElementById('btnModeAdd');
+        var btnDeduct = document.getElementById('btnModeDeduct');
+        var submitBtn = document.getElementById('submitBtn');
+        var starsLabel = document.getElementById('starsLabel');
+        var header = document.getElementById('formHeader');
         hideBalanceError();
 
         if (mode === 'ADD') {
@@ -452,9 +499,9 @@ const CLASS_STUDENTS = {
 
     function setMode(mode) {
         document.getElementById('rewardType').value = mode;
-        const classSec = document.getElementById('classStreamSection');
-        const studentSec = document.getElementById('studentStreamSection');
-        const reqClass = document.getElementById('rewardingClass');
+        var classSec = document.getElementById('classStreamSection');
+        var studentSec = document.getElementById('studentStreamSection');
+        var reqClass = document.getElementById('rewardingClass');
         hideBalanceError();
 
         if(mode === 'class') {
@@ -473,13 +520,13 @@ const CLASS_STUDENTS = {
     }
 
     function populateStudents() {
-        const cls = document.getElementById('studentClass').value;
-        const select = document.getElementById('studentSelect');
+        var cls = document.getElementById('studentClass').value;
+        var select = document.getElementById('studentSelect');
         select.innerHTML = '<option value="" disabled selected>Select a student</option>';
-        
+
         if (CLASS_STUDENTS[cls]) {
-            CLASS_STUDENTS[cls].forEach(name => {
-                const opt = document.createElement('option');
+            CLASS_STUDENTS[cls].forEach(function(name) {
+                var opt = document.createElement('option');
                 opt.value = name;
                 opt.textContent = name;
                 select.appendChild(opt);
@@ -488,26 +535,31 @@ const CLASS_STUDENTS = {
     }
 
     function addStudentTag() {
-        const select = document.getElementById('studentSelect');
-        const val = select.value;
-        if (val && !selectedStudents.includes(val)) {
+        var select = document.getElementById('studentSelect');
+        var val = select.value;
+        if (val && selectedStudents.indexOf(val) === -1) {
             selectedStudents.push(val);
             renderStudentTags();
         }
     }
 
     function removeStudentTag(name) {
-        selectedStudents = selectedStudents.filter(s => s !== name);
+        selectedStudents = selectedStudents.filter(function(s) { return s !== name; });
         renderStudentTags();
     }
 
     function renderStudentTags() {
-        const container = document.getElementById('selectedStudentsList');
+        var container = document.getElementById('selectedStudentsList');
         container.innerHTML = '';
-        selectedStudents.forEach(name => {
-            const tag = document.createElement('div');
+        selectedStudents.forEach(function(name) {
+            var tag = document.createElement('div');
             tag.className = 'tag';
-            tag.innerHTML = `${name} <span onclick="removeStudentTag('${name}')">&times;</span>`;
+            var nameSpan = document.createTextNode(name + ' ');
+            var closeBtn = document.createElement('span');
+            closeBtn.textContent = '\u00d7';
+            closeBtn.addEventListener('click', function() { removeStudentTag(name); });
+            tag.appendChild(nameSpan);
+            tag.appendChild(closeBtn);
             container.appendChild(tag);
         });
         document.getElementById('studentNames').value = selectedStudents.join(',');
@@ -519,29 +571,27 @@ const CLASS_STUDENTS = {
     }
 
     function hideBalanceError() {
-        const errDiv = document.getElementById('balanceError');
+        var errDiv = document.getElementById('balanceError');
         errDiv.style.display = 'none';
         errDiv.innerHTML = '';
     }
 
     function showBalanceError(message) {
-        const errDiv = document.getElementById('balanceError');
+        var errDiv = document.getElementById('balanceError');
         errDiv.style.display = 'block';
         errDiv.innerHTML = message;
     }
 
-    // String Normalizer to remove extra spaces, quotes, and normalize case
     function normalizeStr(str) {
         return str ? str.replace(/"/g, '').replace(/\s+/g, ' ').trim().toLowerCase() : '';
     }
 
-    // Proper CSV Parser handling quotes and internal commas
     function parseCSVRow(rowText) {
-        const result = [];
-        let insideQuote = false;
-        let entry = '';
-        for (let i = 0; i < rowText.length; i++) {
-            const char = rowText[i];
+        var result = [];
+        var insideQuote = false;
+        var entry = '';
+        for (var i = 0; i < rowText.length; i++) {
+            var char = rowText[i];
             if (char === '"') {
                 insideQuote = !insideQuote;
             } else if (char === ',' && !insideQuote) {
@@ -556,33 +606,31 @@ const CLASS_STUDENTS = {
     }
 
     async function fetchBalanceSheetData() {
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Balance`;
-        const response = await fetch(csvUrl);
-        const text = await response.text();
-        
-        const lines = text.split(/\r?\n/);
-        const classBalances = {};
-        const studentBalances = {};
+        var csvUrl = "https://docs.google.com/spreadsheets/d/" + SPREADSHEET_ID + "/gviz/tq?tqx=out:csv&sheet=Balance";
+        var response = await fetch(csvUrl);
+        var text = await response.text();
 
-        lines.slice(1).forEach(line => {
+        var lines = text.split(/\r?\n/);
+        var classBalances = {};
+        var studentBalances = {};
+
+        lines.slice(1).forEach(function(line) {
             if (!line.trim()) return;
-            const row = parseCSVRow(line);
-            
-            // Class (Col A / index 0) & Class Stars (Col B / index 1)
+            var row = parseCSVRow(line);
+
             if (row[0]) {
-                const className = normalizeStr(row[0]);
-                const stars = parseInt(row[1], 10) || 0;
+                var className = normalizeStr(row[0]);
+                var stars = parseInt(row[1], 10) || 0;
                 classBalances[className] = stars;
             }
-            // Student Name (Col G / index 6) & Total Stars (Col H / index 7)
             if (row.length >= 8 && row[6]) {
-                const studentName = normalizeStr(row[6]);
-                const stars = parseInt(row[7], 10) || 0;
-                studentBalances[studentName] = stars;
+                var studentName = normalizeStr(row[6]);
+                var studentStars = parseInt(row[7], 10) || 0;
+                studentBalances[studentName] = studentStars;
             }
         });
 
-        return { classBalances, studentBalances };
+        return { classBalances: classBalances, studentBalances: studentBalances };
     }
 
     async function handleFormSubmit(event) {
@@ -591,53 +639,55 @@ const CLASS_STUDENTS = {
         event.preventDefault();
         hideBalanceError();
 
-        const teacher = document.getElementById('teacherName').value;
-        const code = document.getElementById('passcode').value;
-        const err = document.getElementById('passcodeError');
+        var teacher = document.getElementById('teacherName').value;
+        var code = document.getElementById('passcode').value;
+        var err = document.getElementById('passcodeError');
 
         if (TEACHER_PASSCODES[teacher] && TEACHER_PASSCODES[teacher] !== code) {
             err.style.display = 'block';
             return;
         }
 
-        const mode = document.getElementById('rewardType').value;
+        var mode = document.getElementById('rewardType').value;
         if (mode === 'student' && selectedStudents.length === 0) {
-            alert('Please add at least one student before submitting.');
+            showToast('Please add at least one student before submitting.', 'error');
             return;
         }
 
-        const actionMode = document.getElementById('actionMode').value;
-        const starsRequested = parseInt(document.getElementById('stars').value, 10);
-        const submitBtn = document.getElementById('submitBtn');
+        var actionMode = document.getElementById('actionMode').value;
+        var starsRequested = parseInt(document.getElementById('stars').value, 10);
+        var submitBtn = document.getElementById('submitBtn');
 
         submitBtn.disabled = true;
 
         try {
             if (actionMode === 'DEDUCT') {
                 submitBtn.textContent = 'Checking Balance...';
-                
-                const { classBalances, studentBalances } = await fetchBalanceSheetData();
-                let insufficientList = [];
+
+                var balanceData = await fetchBalanceSheetData();
+                var classBalances = balanceData.classBalances;
+                var studentBalances = balanceData.studentBalances;
+                var insufficientList = [];
 
                 if (mode === 'class') {
-                    const cls = document.getElementById('rewardingClass').value;
-                    const key = normalizeStr(cls);
-                    const ownedStars = classBalances[key] !== undefined ? classBalances[key] : 0;
+                    var cls = document.getElementById('rewardingClass').value;
+                    var key = normalizeStr(cls);
+                    var ownedStars = classBalances[key] !== undefined ? classBalances[key] : 0;
                     if (ownedStars < starsRequested) {
-                        insufficientList.push(`• Class <strong>${cls}</strong> currently has <strong>${ownedStars} star(s)</strong>.`);
+                        insufficientList.push('• Class <strong>' + cls + '</strong> currently has <strong>' + ownedStars + ' star(s)</strong>.');
                     }
                 } else {
-                    selectedStudents.forEach(student => {
-                        const key = normalizeStr(student);
-                        const ownedStars = studentBalances[key] !== undefined ? studentBalances[key] : 0;
-                        if (ownedStars < starsRequested) {
-                            insufficientList.push(`• <strong>${student}</strong> currently has <strong>${ownedStars} star(s)</strong>.`);
+                    selectedStudents.forEach(function(student) {
+                        var sKey = normalizeStr(student);
+                        var sOwnedStars = studentBalances[sKey] !== undefined ? studentBalances[sKey] : 0;
+                        if (sOwnedStars < starsRequested) {
+                            insufficientList.push('• <strong>' + student + '</strong> currently has <strong>' + sOwnedStars + ' star(s)</strong>.');
                         }
                     });
                 }
 
                 if (insufficientList.length > 0) {
-                    showBalanceError(`❌ <strong>Redemption Rejected!</strong> Not enough stars.<br>${insufficientList.join('<br>')}<br><br>Required: <strong>${starsRequested} star(s)</strong>.`);
+                    showBalanceError('❌ <strong>Redemption Rejected!</strong> Not enough stars.<br>' + insufficientList.join('<br>') + '<br><br>Required: <strong>' + starsRequested + ' star(s)</strong>.');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Deduct Stars';
                     return;
@@ -649,12 +699,12 @@ const CLASS_STUDENTS = {
             document.getElementById('rewardForm').submit();
 
             document.getElementById('hidden_iframe').onload = function() {
-                alert('Submission successful!');
-                location.reload();
+                showToast('Submission successful! ✅', 'success');
+                setTimeout(function() { location.reload(); }, 1500);
             };
 
         } catch (error) {
-            alert('Error checking balance. Ensure Google Sheet is shared as "Anyone with link - Viewer". Details: ' + error.message);
+            showToast('Error checking balance. Ensure Google Sheet is shared as "Anyone with link - Viewer". Details: ' + error.message, 'error');
             submitBtn.disabled = false;
             submitBtn.textContent = actionMode === 'ADD' ? 'Submit Stars' : 'Deduct Stars';
         }
