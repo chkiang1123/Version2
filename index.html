@@ -77,9 +77,9 @@
         <div id="btnModeAdd" class="action-btn active-add" onclick="setActionMode('ADD')">➕ Add Stars</div>
         <div id="btnModeDeduct" class="action-btn" onclick="setActionMode('DEDUCT')">➖ Redeem / Deduct</div>
     </div>
-
+//change script in here
     <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-    <form id="rewardForm" action="https://script.google.com/macros/s/AKfycbzE3sQVlvfkxLcZtlhE1lPKpGNak3Iae3uTKZRbEQYeoCPUeQYewcQjVxx4GyTxNRsB/exec" method="POST" target="hidden_iframe" onsubmit="handleFormSubmit(event)">
+    <form id="rewardForm" action="https://script.google.com/macros/s/AKfycbzRmHQLqW-5SjBCFbUhUgFUgQpNOH55JgCyWGQ56N2NdfUKyU3V0SJnRK_iK_Cp8XHo/exec" method="POST" target="hidden_iframe" onsubmit="handleFormSubmit(event)">
 
         <input type="hidden" name="actionMode" id="actionMode" value="ADD">
 
@@ -147,16 +147,21 @@
         <input type="hidden" name="rewardType" id="rewardType" value="class">
 
         <div id="classStreamSection">
-            <label for="rewardingClass">Select Class</label>
-            <select name="rewardingClass" id="rewardingClass" required>
-                <option value="" disabled selected>Select class (1A - 6D)</option>
-                <option value="1A">1A</option><option value="1B">1B</option><option value="1C">1C</option><option value="1D">1D</option>
-                <option value="2A">2A</option><option value="2B">2B</option><option value="2C">2C</option><option value="2D">2D</option>
-                <option value="3A">3A</option><option value="3B">3B</option><option value="3C">3C</option><option value="3D">3D</option>
-                <option value="4A">4A</option><option value="4B">4B</option><option value="4C">4C</option><option value="4D">4D</option>
-                <option value="5A">5A</option><option value="5B">5B</option><option value="5C">5C</option><option value="5D">5D</option>
-                <option value="6A">6A</option><option value="6B">6B</option><option value="6C">6C</option><option value="6D">6D</option>
-            </select>
+            <label for="classSelect">Select Class(es)</label>
+            <div class="add-row">
+                <select id="classSelect">
+                    <option value="" disabled selected>Select class (1A - 6D)</option>
+                    <option value="1A">1A</option><option value="1B">1B</option><option value="1C">1C</option><option value="1D">1D</option>
+                    <option value="2A">2A</option><option value="2B">2B</option><option value="2C">2C</option><option value="2D">2D</option>
+                    <option value="3A">3A</option><option value="3B">3B</option><option value="3C">3C</option><option value="3D">3D</option>
+                    <option value="4A">4A</option><option value="4B">4B</option><option value="4C">4C</option><option value="4D">4D</option>
+                    <option value="5A">5A</option><option value="5B">5B</option><option value="5C">5C</option><option value="5D">5D</option>
+                    <option value="6A">6A</option><option value="6B">6B</option><option value="6C">6C</option><option value="6D">6D</option>
+                </select>
+                <button type="button" class="add-btn" onclick="addClassTag()">+ ADD</button>
+            </div>
+            <div id="selectedClassesList" class="tag-container"></div>
+            <input type="hidden" name="classNames" id="classNames">
         </div>
 
         <div id="studentStreamSection" style="display: none;">
@@ -185,11 +190,11 @@
 
         <label for="stars" id="starsLabel">Stars Awarded</label>
         <select name="stars" id="stars" required>
-            <option value="1">⭐1 Star</option>
-            <option value="2">⭐⭐2 Stars</option>
-            <option value="3">⭐⭐⭐3 Stars</option>
-            <option value="4">⭐⭐⭐⭐4 Stars</option>
-            <option value="5">⭐⭐⭐⭐⭐5 Stars</option>
+            <option value="1">⭐ 1 Star</option>
+            <option value="2">⭐⭐ 2 Stars</option>
+            <option value="3">⭐⭐⭐ 3 Stars</option>
+            <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+            <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
         </select>
 
         <label for="reason">Reason / Note</label>
@@ -476,6 +481,7 @@ var CLASS_STUDENTS = {
 };
 
 var selectedStudents = [];
+var selectedClasses = [];
 
 /* ── Toast (replaces alert) ── */
 function showToast(message, type) {
@@ -588,13 +594,11 @@ function setMode(mode) {
         document.getElementById('btnStudent').classList.remove('active');
         document.getElementById('classStreamSection').style.display = 'block';
         document.getElementById('studentStreamSection').style.display = 'none';
-        document.getElementById('rewardingClass').setAttribute('required', 'required');
     } else {
         document.getElementById('btnStudent').classList.add('active');
         document.getElementById('btnClass').classList.remove('active');
         document.getElementById('classStreamSection').style.display = 'none';
         document.getElementById('studentStreamSection').style.display = 'block';
-        document.getElementById('rewardingClass').removeAttribute('required');
     }
 }
 
@@ -643,6 +647,38 @@ function renderStudentTags() {
     hideBalanceError();
 }
 
+function addClassTag() {
+    var val = document.getElementById('classSelect').value;
+    if (val && selectedClasses.indexOf(val) === -1) {
+        selectedClasses.push(val);
+        renderClassTags();
+    }
+}
+
+function removeClassTag(name) {
+    selectedClasses = selectedClasses.filter(function(s) { return s !== name; });
+    renderClassTags();
+}
+
+function renderClassTags() {
+    var c = document.getElementById('selectedClassesList');
+    c.innerHTML = '';
+    selectedClasses.forEach(function(name) {
+        var tag = document.createElement('div');
+        tag.className = 'tag';
+        var txt = document.createTextNode(name + ' ');
+        var btn = document.createElement('span');
+        btn.className = 'tag-remove';
+        btn.textContent = '\u00d7';
+        btn.addEventListener('click', function() { removeClassTag(name); });
+        tag.appendChild(txt);
+        tag.appendChild(btn);
+        c.appendChild(tag);
+    });
+    document.getElementById('classNames').value = selectedClasses.join(',');
+    hideBalanceError();
+}
+
 function resetPasscodeValidation() { document.getElementById('passcodeError').style.display = 'none'; }
 function hideBalanceError() { var e = document.getElementById('balanceError'); e.style.display = 'none'; e.innerHTML = ''; }
 function showBalanceError(msg) { var e = document.getElementById('balanceError'); e.style.display = 'block'; e.innerHTML = msg; }
@@ -687,6 +723,10 @@ async function handleFormSubmit(event) {
     }
 
     var targetMode = document.getElementById('rewardType').value;
+    if (targetMode === 'class' && selectedClasses.length === 0) {
+        showToast('Please add at least one class before submitting.', 'error');
+        return;
+    }
     if (targetMode === 'student' && selectedStudents.length === 0) {
         showToast('Please add at least one student before submitting.', 'error');
         return;
@@ -704,7 +744,7 @@ async function handleFormSubmit(event) {
 
             var targets = [];
             if (targetMode === 'class') {
-                targets = [document.getElementById('rewardingClass').value];
+                targets = selectedClasses.slice();
             } else {
                 targets = selectedStudents.slice();
             }
